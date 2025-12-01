@@ -1,3 +1,5 @@
+// File: LifeStream/lib/pages/settings/settings_page.dart (Modified Content - Added _buildToggleSettingTile and Device Settings section)
+// ... existing imports ...
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,13 +9,18 @@ import 'package:life_stream/providers/theme_provider.dart';
 import 'package:life_stream/widgets/index.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
-  const SettingsPage({Key? key}) : super(key: key);
+  const SettingsPage({super.key});
 
   @override
   ConsumerState<SettingsPage> createState() => _SettingsPageState();
 }
 
 class _SettingsPageState extends ConsumerState<SettingsPage> {
+  // Device specific settings state (simulated)
+  bool _vibrationEnabled = true;
+  bool _fallDetectionAlerts = true;
+  bool _lowBatteryAlerts = true;
+
   @override
   Widget build(BuildContext context) {
     final themeMode = ref.watch(themeModeProvider);
@@ -29,6 +36,56 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            // NEW SECTION: Device Settings
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Device Settings',
+                    style: AppTextStyles.headlineSmall,
+                  ),
+                  const SizedBox(height: 12),
+                  AppCard(
+                    child: Column(
+                      children: [
+                        _buildToggleSettingTile(
+                          icon: Icons.vibration_rounded,
+                          title: 'Device Vibration',
+                          value: _vibrationEnabled,
+                          onChanged: (value) {
+                            setState(() => _vibrationEnabled = value);
+                            // Mock save action
+                          },
+                        ),
+                        const Divider(height: 1),
+                        _buildToggleSettingTile(
+                          icon: Icons.emergency_share_rounded,
+                          title: 'Fall Detection Alerts',
+                          value: _fallDetectionAlerts,
+                          onChanged: (value) {
+                            setState(() => _fallDetectionAlerts = value);
+                            // Mock save action
+                          },
+                        ),
+                        const Divider(height: 1),
+                        _buildToggleSettingTile(
+                          icon: Icons.battery_alert_rounded,
+                          title: 'Low Battery Alerts',
+                          value: _lowBatteryAlerts,
+                          onChanged: (value) {
+                            setState(() => _lowBatteryAlerts = value);
+                            // Mock save action
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
             // Appearance Section
             Padding(
               padding: const EdgeInsets.all(16),
@@ -291,6 +348,24 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       title: Text(title),
       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
       onTap: onTap,
+    );
+  }
+
+  Widget _buildToggleSettingTile({
+    required IconData icon,
+    required String title,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return ListTile(
+      leading: Icon(icon),
+      title: Text(title),
+      trailing: Switch(
+        value: value,
+        onChanged: onChanged,
+        activeThumbColor: Theme.of(context).primaryColor,
+      ),
+      onTap: () => onChanged(!value),
     );
   }
 }

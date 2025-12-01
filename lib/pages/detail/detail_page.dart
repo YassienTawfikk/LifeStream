@@ -7,7 +7,7 @@ import 'package:life_stream/widgets/index.dart';
 class DetailPage extends StatelessWidget {
   final String itemId;
 
-  const DetailPage({Key? key, required this.itemId}) : super(key: key);
+  const DetailPage({super.key, required this.itemId});
 
   @override
   Widget build(BuildContext context) {

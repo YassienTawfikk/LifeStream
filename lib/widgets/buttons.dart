@@ -10,13 +10,13 @@ class PrimaryButton extends StatelessWidget {
   final IconData? icon;
 
   const PrimaryButton({
-    Key? key,
+    super.key,
     required this.label,
     required this.onPressed,
     this.isLoading = false,
     this.isFullWidth = true,
     this.icon,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -58,12 +58,12 @@ class SecondaryButton extends StatelessWidget {
   final IconData? icon;
 
   const SecondaryButton({
-    Key? key,
+    super.key,
     required this.label,
     required this.onPressed,
     this.isFullWidth = true,
     this.icon,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -89,11 +89,11 @@ class CustomTextButton extends StatelessWidget {
   final Color? textColor;
 
   const CustomTextButton({
-    Key? key,
+    super.key,
     required this.label,
     required this.onPressed,
     this.textColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

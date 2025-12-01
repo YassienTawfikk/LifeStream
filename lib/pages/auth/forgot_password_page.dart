@@ -4,7 +4,7 @@ import 'package:life_stream/constants/index.dart';
 import 'package:life_stream/widgets/index.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
-  const ForgotPasswordPage({Key? key}) : super(key: key);
+  const ForgotPasswordPage({super.key});
 
   @override
   State<ForgotPasswordPage> createState() => _ForgotPasswordPageState();

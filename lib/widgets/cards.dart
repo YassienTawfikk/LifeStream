@@ -10,13 +10,13 @@ class AppCard extends StatelessWidget {
   final Color? backgroundColor;
 
   const AppCard({
-    Key? key,
+    super.key,
     required this.child,
     this.onTap,
     this.padding = const EdgeInsets.all(16),
     this.borderRadius = 16,
     this.backgroundColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -52,13 +52,13 @@ class ItemCard extends StatelessWidget {
   final VoidCallback onTap;
 
   const ItemCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.description,
     this.imageUrl,
     required this.rating,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -153,12 +153,12 @@ class EmptyStateWidget extends StatelessWidget {
   final VoidCallback? onRetry;
 
   const EmptyStateWidget({
-    Key? key,
+    super.key,
     required this.icon,
     required this.title,
     required this.description,
     this.onRetry,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

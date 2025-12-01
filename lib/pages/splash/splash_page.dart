@@ -5,7 +5,7 @@ import 'package:life_stream/constants/index.dart';
 import 'package:life_stream/providers/auth_provider.dart';
 
 class SplashPage extends ConsumerStatefulWidget {
-  const SplashPage({Key? key}) : super(key: key);
+  const SplashPage({super.key});
 
   @override
   ConsumerState<SplashPage> createState() => _SplashPageState();
@@ -13,107 +13,145 @@ class SplashPage extends ConsumerStatefulWidget {
 
 class _SplashPageState extends ConsumerState<SplashPage>
     with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
-  late Animation<double> _scaleAnimation;
+  late AnimationController _controller;
+  late Animation<double> _fade;
+  late Animation<double> _scale;
 
   @override
   void initState() {
     super.initState();
     _setupAnimations();
-    _navigateAfterDelay();
+    _navigate();
   }
 
   void _setupAnimations() {
-    _animationController = AnimationController(
-      duration: AppConstants.longAnimationDuration,
+    _controller = AnimationController(
       vsync: this,
+      duration: const Duration(seconds: 2),
     );
 
-    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    _fade = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
 
-    _scaleAnimation = Tween<double>(begin: 0.8, end: 1).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
+    _scale = Tween<double>(begin: 0.75, end: 1).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
     );
 
-    _animationController.forward();
+    _controller.forward();
   }
 
-  void _navigateAfterDelay() {
-    Future.delayed(const Duration(seconds: 3), () {
-      if (!mounted) return;
+  void _navigate() async {
+    await Future.delayed(const Duration(seconds: 3));
+    if (!mounted) return;
 
-      final authState = ref.read(authProvider);
-      if (authState.isAuthenticated) {
-        context.go('/home');
-      } else {
-        context.go('/login');
-      }
-    });
+    final auth = ref.read(authProvider);
+    context.go(auth.isAuthenticated ? '/home' : '/login');
   }
 
   @override
   void dispose() {
-    _animationController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final primary = Theme.of(context).primaryColor;
+
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ScaleTransition(
-              scale: _scaleAnimation,
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Theme.of(context).primaryColor,
-                        Theme.of(context).primaryColor.withValues(alpha: 0.7),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+      body: Stack(
+        children: [
+          // Animated Gradient Background
+          AnimatedContainer(
+            duration: const Duration(seconds: 3),
+            curve: Curves.easeInOut,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  primary.withOpacity(0.9),
+                  primary.withOpacity(0.6),
+                  primary.withOpacity(0.3),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+          ),
+
+          // Main Content
+          Center(
+            child: FadeTransition(
+              opacity: _fade,
+              child: ScaleTransition(
+                scale: _scale,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Glowing Logo
+                    Container(
+                      width: 140,
+                      height: 140,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(32),
+                        boxShadow: [
+                          BoxShadow(
+                            color: primary.withOpacity(0.5),
+                            blurRadius: 35,
+                            spreadRadius: 3,
+                          )
+                        ],
+                        gradient: LinearGradient(
+                          colors: [
+                            primary,
+                            primary.withOpacity(0.7),
+                          ],
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.video_library_rounded,
+                        size: 70,
+                        color: Colors.white,
+                      ),
                     ),
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: const Icon(
-                    Icons.video_library,
-                    color: Colors.white,
-                    size: 60,
-                  ),
+
+                    const SizedBox(height: 28),
+
+                    // App Name
+                    Text(
+                      AppConstants.appName,
+                      style: AppTextStyles.displaySmall.copyWith(
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    // Shimmer Loading Text
+                    ShaderMask(
+                      shaderCallback: (bounds) => LinearGradient(
+                        colors: [
+                          Colors.white.withOpacity(0.2),
+                          Colors.white,
+                          Colors.white.withOpacity(0.2),
+                        ],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ).createShader(bounds),
+                      child: Text(
+                        "Loading...",
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-            const SizedBox(height: 24),
-            FadeTransition(
-              opacity: _fadeAnimation,
-              child: Text(
-                AppConstants.appName,
-                style: AppTextStyles.displaySmall,
-              ),
-            ),
-            const SizedBox(height: 8),
-            FadeTransition(
-              opacity: _fadeAnimation,
-              child: Text(
-                AppConstants.appDescription,
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

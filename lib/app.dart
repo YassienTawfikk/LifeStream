@@ -5,7 +5,7 @@ import 'package:life_stream/routes/app_router.dart';
 import 'package:life_stream/utils/app_theme.dart';
 
 class LifeStreamApp extends ConsumerWidget {
-  const LifeStreamApp({Key? key}) : super(key: key);
+  const LifeStreamApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

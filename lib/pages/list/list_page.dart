@@ -4,7 +4,7 @@ import 'package:life_stream/models/index.dart';
 import 'package:life_stream/widgets/index.dart';
 
 class ListPage extends StatefulWidget {
-  const ListPage({Key? key}) : super(key: key);
+  const ListPage({super.key});
 
   @override
   State<ListPage> createState() => _ListPageState();
