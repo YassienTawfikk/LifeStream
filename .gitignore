@@ -1,0 +1,74 @@
+# Flutter/Dart generated
+.dart_tool/
+.build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+pubspec.lock
+.metadata
+*.log
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+*.DS_Store
+
+# Android
+/build/
+/android/.gradle/
+/android/captures/
+/android/gradlew
+/android/gradlew.bat
+/android/local.properties
+android/GeneratedPluginRegistrant.java
+android/.cxx/
+/*.keystore
+*.jks
+key.properties
+
+# iOS
+ios/Flutter/ephemeral/
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+ios/Pods/
+ios/DerivedData/
+ios/xcuserdata/
+ios/Runner/GeneratedPluginRegistrant.*
+*.xcworkspace
+*.mode1v3
+*.mode2v3
+*.moved-aside
+*.pbxuser
+*.perspectivev3
+**/*sync/
+.sconsign.dblite
+.tags*
+**/.vagrant/
+**/.generated/
+Flutter/App.framework
+Flutter/Flutter.framework
+Flutter/Flutter.podspec
+Flutter/app.flx
+Flutter/app.zip
+Flutter/flutter_assets/
+ServiceDefinitions.json
+profile
+Icon?
+
+# macOS
+macos/Flutter/ephemeral/
+macos/Runner/GeneratedPluginRegistrant.swift
+macos/Runner.xcworkspace/
+macos/Runner/Configs/*.xcconfig
+macos/Runner/DebugProfile.entitlements
+macos/Runner/Release.entitlements
+
+# Linux
+linux/flutter/generated_plugins.cmake
+
+# Windows
+windows/flutter/generated_plugins.cmake
+
+# Miscellaneous
+*.log
