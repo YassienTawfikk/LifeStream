@@ -109,8 +109,8 @@ class _SplashPageState extends ConsumerState<SplashPage>
                         ),
                       ),
                       child: const Icon(
-                        Icons.video_library_rounded,
-                        size: 70,
+                        Icons.health_and_safety_rounded, // UPDATED ICON
+                        size: 80, // UPDATED SIZE
                         color: Colors.white,
                       ),
                     ),
