@@ -1,0 +1,296 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:life_stream/constants/index.dart';
+import 'package:life_stream/providers/auth_provider.dart';
+import 'package:life_stream/providers/theme_provider.dart';
+import 'package:life_stream/widgets/index.dart';
+
+class SettingsPage extends ConsumerStatefulWidget {
+  const SettingsPage({Key? key}) : super(key: key);
+
+  @override
+  ConsumerState<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends ConsumerState<SettingsPage> {
+  @override
+  Widget build(BuildContext context) {
+    final themeMode = ref.watch(themeModeProvider);
+
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
+        title: const Text('Settings'),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            // Appearance Section
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Appearance',
+                    style: AppTextStyles.headlineSmall,
+                  ),
+                  const SizedBox(height: 12),
+                  AppCard(
+                    child: Column(
+                      children: [
+                        _buildSettingTile(
+                          icon: Icons.light_mode,
+                          title: 'Light Theme',
+                          onTap: () => ref
+                              .read(themeModeProvider.notifier)
+                              .setLight(),
+                          isSelected: themeMode == ThemeMode.light,
+                        ),
+                        const Divider(height: 1),
+                        _buildSettingTile(
+                          icon: Icons.dark_mode,
+                          title: 'Dark Theme',
+                          onTap: () =>
+                              ref.read(themeModeProvider.notifier).setDark(),
+                          isSelected: themeMode == ThemeMode.dark,
+                        ),
+                        const Divider(height: 1),
+                        _buildSettingTile(
+                          icon: Icons.brightness_auto,
+                          title: 'System Default',
+                          onTap: () => ref
+                              .read(themeModeProvider.notifier)
+                              .setSystem(),
+                          isSelected: themeMode == ThemeMode.system,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Account Section
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Account',
+                    style: AppTextStyles.headlineSmall,
+                  ),
+                  const SizedBox(height: 12),
+                  AppCard(
+                    child: Column(
+                      children: [
+                        _buildSimpleSettingTile(
+                          icon: Icons.person,
+                          title: 'Edit Profile',
+                          onTap: () => context.push('/profile'),
+                        ),
+                        const Divider(height: 1),
+                        _buildSimpleSettingTile(
+                          icon: Icons.lock,
+                          title: 'Change Password',
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Feature coming soon'),
+                              ),
+                            );
+                          },
+                        ),
+                        const Divider(height: 1),
+                        _buildSimpleSettingTile(
+                          icon: Icons.privacy_tip,
+                          title: 'Privacy Settings',
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Feature coming soon'),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // App Section
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'App',
+                    style: AppTextStyles.headlineSmall,
+                  ),
+                  const SizedBox(height: 12),
+                  AppCard(
+                    child: Column(
+                      children: [
+                        _buildSimpleSettingTile(
+                          icon: Icons.info_outline,
+                          title: 'About LifeStream',
+                          onTap: () => _showAboutDialog(),
+                        ),
+                        const Divider(height: 1),
+                        _buildSimpleSettingTile(
+                          icon: Icons.description,
+                          title: 'Terms & Conditions',
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Feature coming soon'),
+                              ),
+                            );
+                          },
+                        ),
+                        const Divider(height: 1),
+                        _buildSimpleSettingTile(
+                          icon: Icons.privacy_tip_outlined,
+                          title: 'Privacy Policy',
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Feature coming soon'),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Logout Button
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: PrimaryButton(
+                label: 'Logout',
+                onPressed: () => _handleLogout(),
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Version Info
+            Center(
+              child: Text(
+                'LifeStream ${AppConstants.appVersion}',
+                style: AppTextStyles.labelSmall.copyWith(
+                  color: AppColors.textTertiary,
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showAboutDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          AppConstants.appName,
+          style: AppTextStyles.headlineSmall,
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              AppConstants.appDescription,
+              style: AppTextStyles.bodyMedium,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Version: ${AppConstants.appVersion}',
+              style: AppTextStyles.bodySmall,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleLogout() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              ref.read(authProvider.notifier).logout();
+              context.go('/login');
+            },
+            child: const Text(
+              'Logout',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSettingTile({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+    required bool isSelected,
+  }) {
+    return ListTile(
+      leading: Icon(icon),
+      title: Text(title),
+      trailing: isSelected
+          ? Icon(
+              Icons.check_circle,
+              color: Theme.of(context).primaryColor,
+            )
+          : null,
+      onTap: onTap,
+    );
+  }
+
+  Widget _buildSimpleSettingTile({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Icon(icon),
+      title: Text(title),
+      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+      onTap: onTap,
+    );
+  }
+}

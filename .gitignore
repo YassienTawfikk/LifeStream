@@ -15,9 +15,9 @@ pubspec.lock
 *.DS_Store
 
 # Android
-/build/
 /android/.gradle/
 /android/captures/
+/android/build/
 /android/gradlew
 /android/gradlew.bat
 /android/local.properties
@@ -30,12 +30,14 @@ android/app/src/debug/
 android/app/src/main/java/io/flutter/plugins/
 
 # iOS
+ios/Pods/
+ios/.symlinks/
 ios/Flutter/ephemeral/
+ios/Flutter/Flutter.framework
 ios/Flutter/Generated.xcconfig
 ios/Flutter/flutter_export_environment.sh
-ios/Pods/
 ios/DerivedData/
-ios/xcuserdata/
+ios/Runner.xcworkspace/
 ios/Runner/GeneratedPluginRegistrant.*
 *.xcworkspace
 *.mode1v3
@@ -48,7 +50,6 @@ ios/Runner/GeneratedPluginRegistrant.*
 **/.vagrant/
 **/.generated/
 Flutter/App.framework
-Flutter/Flutter.framework
 Flutter/Flutter.podspec
 Flutter/app.flx
 Flutter/app.zip
@@ -65,12 +66,19 @@ macos/Runner/Configs/*.xcconfig
 macos/Runner/DebugProfile.entitlements
 macos/Runner/Release.entitlements
 macos/RunnerTests/
+macos/build/
 
 # Linux
 linux/flutter/generated_plugins.cmake
+linux/build/
 
 # Windows
 windows/flutter/
+windows/build/
 
 # Miscellaneous
 *.log
+*.tmp
+*.swp
+*.lock
+*.backup
