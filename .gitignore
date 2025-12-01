@@ -16,13 +16,13 @@ pubspec.lock
 
 # Android
 /android/.gradle/
-/android/captures/
 /android/build/
+/android/captures/
 /android/gradlew
 /android/gradlew.bat
 /android/local.properties
-android/GeneratedPluginRegistrant.java
-android/.cxx/
+/android/GeneratedPluginRegistrant.java
+/android/.cxx/
 /*.keystore
 *.jks
 key.properties
@@ -43,12 +43,9 @@ ios/Runner/GeneratedPluginRegistrant.*
 *.mode1v3
 *.mode2v3
 *.moved-aside
-*.pbxuser
 **/*sync/
 .sconsign.dblite
 .tags*
-**/.vagrant/
-**/.generated/
 Flutter/App.framework
 Flutter/Flutter.podspec
 Flutter/app.flx
@@ -75,6 +72,9 @@ linux/build/
 # Windows
 windows/flutter/
 windows/build/
+
+# Build outputs
+build/
 
 # Miscellaneous
 *.log
