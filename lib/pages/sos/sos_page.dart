@@ -1,38 +1,104 @@
-// File: LifeStream/lib/pages/sos/sos_page.dart (New File)
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:life_stream/constants/index.dart';
+import 'package:life_stream/providers/auth_provider.dart';
 import 'package:life_stream/widgets/index.dart';
 
-class SosPage extends StatefulWidget {
+class SosPage extends ConsumerStatefulWidget {
   const SosPage({super.key});
 
   @override
-  State<SosPage> createState() => _SosPageState();
+  ConsumerState<SosPage> createState() => _SosPageState();
 }
 
-class _SosPageState extends State<SosPage> {
+class _SosPageState extends ConsumerState<SosPage> {
   bool isAlertTriggered = false;
+  bool isSending = false;
 
-  void _triggerSos() {
-    setState(() => isAlertTriggered = true);
-    // Simulate sending an alert
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('SOS Alert Sent to Emergency Contacts!'),
-        backgroundColor: Colors.red,
-      ),
-    );
+  Future<void> _triggerSos() async {
+    setState(() {
+      isAlertTriggered = true;
+      isSending = true;
+    });
+
+    try {
+      // 1. Get User ID
+      final user = ref.read(authProvider).user;
+      final userId = user?.id ?? 'unknown_user';
+
+      // 2. Get Current Location
+      // Check permissions first (simplified for SOS, assuming permissions granted from Map page)
+      // In a real app, you'd want robust permission handling here too.
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      // 3. Send to Firebase
+      final databaseRef = FirebaseDatabase.instance.ref('sos_alerts/$userId');
+
+      await databaseRef.set({
+        'status': 'ACTIVE',
+        'timestamp': ServerValue.timestamp,
+        'latitude': position.latitude,
+        'longitude': position.longitude,
+        'user_name': user?.name ?? 'Unknown',
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'SOS Alert Sent! Location shared with emergency contacts.',
+            ),
+            backgroundColor: AppColors.lightError,
+            duration: Duration(seconds: 5),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to send SOS: $e'),
+            backgroundColor: AppColors.textPrimary,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => isSending = false);
+      }
+    }
   }
 
-  void _cancelSos() {
+  Future<void> _cancelSos() async {
     setState(() => isAlertTriggered = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('SOS Alert Canceled.'),
-        backgroundColor: Colors.green,
-      ),
-    );
+
+    try {
+      final user = ref.read(authProvider).user;
+      final userId = user?.id ?? 'unknown_user';
+
+      // Update status to RESOLVED
+      final databaseRef = FirebaseDatabase.instance.ref('sos_alerts/$userId');
+      await databaseRef.update({
+        'status': 'RESOLVED',
+        'resolved_at': ServerValue.timestamp,
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('SOS Alert Canceled.'),
+            backgroundColor: AppColors.success,
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error canceling SOS: $e');
+    }
   }
 
   @override
@@ -52,9 +118,13 @@ class _SosPageState extends State<SosPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                isAlertTriggered ? 'ALERT ACTIVATED' : 'PRESS AND HOLD TO SEND SOS',
+                isAlertTriggered
+                    ? 'ALERT ACTIVATED'
+                    : 'PRESS AND HOLD TO SEND SOS',
                 style: AppTextStyles.displaySmall.copyWith(
-                  color: isAlertTriggered ? Colors.red : AppColors.textPrimary,
+                  color: isAlertTriggered
+                      ? AppColors.lightError
+                      : AppColors.textPrimary,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -65,11 +135,13 @@ class _SosPageState extends State<SosPage> {
                   width: 250,
                   height: 250,
                   decoration: BoxDecoration(
-                    color: isAlertTriggered ? Colors.red : Colors.red.withOpacity(0.8),
+                    color: isAlertTriggered
+                        ? AppColors.lightError
+                        : AppColors.lightError.withOpacity(0.8),
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.red.withOpacity(0.5),
+                        color: AppColors.lightError.withOpacity(0.5),
                         blurRadius: 20,
                         spreadRadius: 5,
                       ),
@@ -78,18 +150,24 @@ class _SosPageState extends State<SosPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        isAlertTriggered ? Icons.warning_rounded : Icons.sos_rounded,
-                        size: 96,
-                        color: Colors.white,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        isAlertTriggered ? 'EMERGENCY' : 'SOS',
-                        style: AppTextStyles.displaySmall.copyWith(
+                      if (isSending)
+                        const CircularProgressIndicator(color: Colors.white)
+                      else ...[
+                        Icon(
+                          isAlertTriggered
+                              ? Icons.warning_rounded
+                              : Icons.sos_rounded,
+                          size: 96,
                           color: Colors.white,
                         ),
-                      ),
+                        const SizedBox(height: 8),
+                        Text(
+                          isAlertTriggered ? 'EMERGENCY' : 'SOS',
+                          style: AppTextStyles.displaySmall.copyWith(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),

@@ -20,10 +20,6 @@ class _LiveMapPageState extends ConsumerState<LiveMapPage> {
   final Completer<GoogleMapController> _controller = Completer();
 
   // Default initial position (Cairo, Egypt) - used while loading
-  static const CameraPosition _kDefaultPosition = CameraPosition(
-    target: LatLng(30.0444, 31.2357),
-    zoom: 14.4746,
-  );
 
   @override
   Widget build(BuildContext context) {
@@ -106,6 +102,7 @@ class _LiveMapPageState extends ConsumerState<LiveMapPage> {
               color: Theme.of(context).cardColor,
               boxShadow: [
                 BoxShadow(
+                  // ignore: deprecated_member_use
                   color: Colors.black.withOpacity(0.1),
                   blurRadius: 10,
                   offset: const Offset(0, -5),
