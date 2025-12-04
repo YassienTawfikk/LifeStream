@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "559681981354",
+    "firebase_url": "https://braceletlifesaver-default-rtdb.firebaseio.com",
+    "project_id": "braceletlifesaver",
+    "storage_bucket": "braceletlifesaver.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:559681981354:android:c51c6f03164d68060639d3",
+        "android_client_info": {
+          "package_name": "com.example.life_stream"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCGdnxgzsKOUik7vmM_1CT0rIoHxrOS4Uo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

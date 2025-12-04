@@ -1,4 +1,4 @@
-// File: LifeStream/lib/pages/home/home_page.dart (Modified Content)
+// File: lib/pages/home/home_page.dart (MODIFIED)
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -6,6 +6,8 @@ import 'package:life_stream/constants/index.dart';
 import 'package:life_stream/providers/auth_provider.dart';
 import 'package:life_stream/widgets/index.dart';
 import 'dart:math';
+// Import the new Pulse Provider
+import 'package:life_stream/providers/pulse_provider.dart'; // NEW IMPORT
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -17,7 +19,6 @@ class HomePage extends ConsumerStatefulWidget {
 class _HomePageState extends ConsumerState<HomePage>
     with SingleTickerProviderStateMixin {
   // Simulated Wearable Data
-  final int heartRate = 85 + Random().nextInt(15); // 85-100 BPM
   final String motionStatus = ['Idle', 'Walking', 'Running'][Random().nextInt(3)];
   final bool dangerAlert = Random().nextBool(); // Simulated low battery/fall risk
 
@@ -26,6 +27,32 @@ class _HomePageState extends ConsumerState<HomePage>
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider).user;
+    
+    // WATCH THE REAL-TIME PULSE PROVIDER HERE (STEP 2)
+    final asyncPulse = ref.watch(realTimePulseProvider);
+    
+    // Determine the current heart rate to display (live data > mock data)
+    final int currentHeartRate = asyncPulse.when(
+      data: (pulse) => pulse ?? 0, // Use live pulse data, default to 0
+      loading: () => 0, // Show 0 while loading
+      error: (err, stack) => 0, // Show 0 on error
+    );
+
+    // Determine the text to display while loading/error
+    final String hrText = asyncPulse.when(
+      data: (pulse) => pulse != null ? '$pulse BPM' : 'No Data',
+      loading: () => 'Loading...',
+      error: (err, stack) => 'Error',
+    );
+    
+    // Determine a safe value and color for the progress indicator
+    final double hrProgress = currentHeartRate / 120.0;
+    final Color hrColor = currentHeartRate > 100
+        ? AppColors.lightError
+        : currentHeartRate > 0 
+          ? AppColors.success 
+          : AppColors.textTertiary;
+
 
     return Scaffold(
       appBar: AppBar(
@@ -79,7 +106,7 @@ class _HomePageState extends ConsumerState<HomePage>
               const SizedBox(height: 24),
             ],
 
-            // 3. Vitals and Status Grid
+            // 3. Vitals and Status Grid (UPDATED)
             Row(
               children: [
                 // Heart Rate
@@ -92,12 +119,15 @@ class _HomePageState extends ConsumerState<HomePage>
                         const SizedBox(height: 8),
                         Text('Heart Rate', style: AppTextStyles.labelSmall),
                         const SizedBox(height: 4),
-                        Text('$heartRate BPM', style: AppTextStyles.headlineLarge),
+                        Text(
+                          hrText, // Displaying live data/status
+                          style: AppTextStyles.headlineLarge,
+                        ),
                         const SizedBox(height: 12),
                         // Simulated Mini Chart (Progress Bar)
                         LinearProgressIndicator(
-                          value: heartRate / 120,
-                          color: heartRate > 100 ? AppColors.lightError : Colors.green,
+                          value: hrProgress.clamp(0.0, 1.0), // Use calculated progress
+                          color: hrColor, // Use calculated color
                         ),
                       ],
                     ),
@@ -177,7 +207,7 @@ class _HomePageState extends ConsumerState<HomePage>
             ),
             const SizedBox(height: 24),
 
-            // 5. Heart Rate History (Mock Chart)
+            // 5. Heart Rate History (Mock Chart) - UPDATED
             Text('Heart Rate Trend', style: AppTextStyles.headlineSmall),
             const SizedBox(height: 12),
             AppCard(
@@ -185,7 +215,7 @@ class _HomePageState extends ConsumerState<HomePage>
                 height: 150,
                 child: Center(
                   child: Text(
-                    'Placeholder for a Line Chart showing HR history.\nLatest BPM: ${heartRateHistory.last}',
+                    'Placeholder for a Line Chart showing HR history.\nLatest BPM: $currentHeartRate', // Updated to show live HR
                     style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
                     textAlign: TextAlign.center,
                   ),

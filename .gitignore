@@ -4,7 +4,7 @@
 .flutter-plugins
 .flutter-plugins-dependencies
 .packages
-pubspec.lock
+# pubspec.lock
 .metadata
 *.log
 
@@ -63,6 +63,8 @@ macos/Runner/DebugProfile.entitlements
 macos/Runner/Release.entitlements
 macos/RunnerTests/
 macos/build/
+macos/Pods/
+
 
 # Linux
 linux/flutter/generated_plugins.cmake
@@ -81,3 +83,5 @@ build/
 *.swp
 *.lock
 *.backup
+build_log.txt
+
