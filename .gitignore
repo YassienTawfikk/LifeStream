@@ -85,3 +85,9 @@ build/
 *.backup
 build_log.txt
 
+
+# Firebase Config
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+macos/Runner/GoogleService-Info.plist
+lib/firebase_options.dart
