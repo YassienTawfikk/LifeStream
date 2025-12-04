@@ -1,23 +1,35 @@
-// File: lib/providers/location_provider.dart
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 
 // Stream provider for live location updates
 final locationProvider = StreamProvider.autoDispose<Position>((ref) async* {
-  // Yield a specific mock location for demo purposes
-  // Coordinates: 30.026000, 31.210920
-  yield Position(
-    latitude: 30.026000,
-    longitude: 31.210920,
-    timestamp: DateTime.now(),
-    accuracy: 0,
-    altitude: 0,
-    heading: 0,
-    speed: 0,
-    speedAccuracy: 0,
-    altitudeAccuracy: 0,
-    headingAccuracy: 0,
-    isMocked: true,
+  // 1. Check if location services are enabled
+  bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  if (!serviceEnabled) {
+    throw Exception('Location services are disabled.');
+  }
+
+  // 2. Check permissions
+  LocationPermission permission = await Geolocator.checkPermission();
+  if (permission == LocationPermission.denied) {
+    permission = await Geolocator.requestPermission();
+    if (permission == LocationPermission.denied) {
+      throw Exception('Location permissions are denied');
+    }
+  }
+
+  if (permission == LocationPermission.deniedForever) {
+    throw Exception(
+      'Location permissions are permanently denied, we cannot request permissions.',
+    );
+  }
+
+  // 3. Stream position updates
+  // High accuracy for better map experience
+  yield* Geolocator.getPositionStream(
+    locationSettings: const LocationSettings(
+      accuracy: LocationAccuracy.high,
+      distanceFilter: 10, // Update every 10 meters
+    ),
   );
 });
