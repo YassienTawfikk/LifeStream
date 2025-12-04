@@ -78,21 +78,99 @@ The fix involved changing the pattern from **synchronous-with-async-init** to **
 
 ### Key Takeaways
 
-1.  **Never mix sync and async initialization** - Fully initialize before returning from a provider.
-2.  **Use `FutureProvider` for async dependencies** (like `SharedPreferences`).
-3.  **Always await async operations** - Use the `.future` suffix to access `FutureProvider` values.
-4.  **Initialize early** - Do all setup in `main()` before creating `ProviderScope`.
+1. **Never mix sync and async initialization** - Fully initialize before returning from a provider.
+2. **Use `FutureProvider` for async dependencies** (like `SharedPreferences`).
+3. **Always await async operations** - Use the `.future` suffix to access `FutureProvider` values.
+4. **Initialize early** - Do all setup in `main()` before creating `ProviderScope`.
 
 ---
 
-## 🚀 Getting Started & Development Reference
+## 🚀 Getting Started
 
-### Quick Start Commands
+Follow these steps to set up the project locally.
+
+### Prerequisites
+
+* **Flutter SDK**: Version 3.10.1 or higher.
+* **Dart SDK**: Version 3.0.0 or higher.
+* **Git**: For cloning the repository.
+* **Google Cloud Console Account**: To generate Google Maps API keys.
+* **Firebase Project**: To generate configuration files.
+
+### ⚙️ Setup & Configuration
+
+#### 1. Clone the Repository
+
+```bash
+git clone https://github.com/YassienTawfikk/LifeStream.git
+cd LifeStream
+```
+
+#### 2. Install Dependencies
+
+```bash
+flutter pub get
+```
+
+#### 3. Android Configuration (API Keys)
+
+The project uses `local.properties` to securely store the Google Maps API key for Android. This file is ignored by Git.
+
+1. Navigate to the `android` directory.
+2. Create or edit the `local.properties` file.
+3. Add your Google Maps API key:
+
+    ```properties
+    flutter.sdk=/path/to/flutter
+    google.maps.key=YOUR_ANDROID_API_KEY_HERE
+    ```
+
+#### 4. iOS Configuration (API Keys)
+
+The project uses a `Secrets.xcconfig` file to securely store the Google Maps API key for iOS. This file is ignored by Git.
+
+1. Navigate to `ios/Flutter/`.
+2. Create a file named `Secrets.xcconfig`.
+3. Add your Google Maps API key:
+
+    ```xcconfig
+    GOOGLE_MAPS_KEY=YOUR_IOS_API_KEY_HERE
+    ```
+
+#### 5. Firebase Configuration
+
+You need to add the Firebase configuration files to the project.
+
+* **Android**: Download `google-services.json` from your Firebase console and place it in `android/app/`.
+* **iOS/macOS**: Download `GoogleService-Info.plist` from your Firebase console and place it in `ios/Runner/` and `macos/Runner/`.
+
+### ▶️ Running the App
+
+#### Run on Android
+
+```bash
+flutter run -d android
+```
+
+#### Run on iOS
+
+```bash
+cd ios
+pod install
+cd ..
+flutter run -d ios
+```
+
+#### Run on Web
+
+```bash
+flutter run -d chrome
+```
+
+### 🛠️ Development Commands
 
 | Action | Command |
 | :--- | :--- |
-| Install dependencies | `flutter pub get` |
-| Run development build | `flutter run` |
 | Analyze code | `flutter analyze` |
 | Format code | `dart format lib/` |
 | Build for web | `flutter build web --release` |
@@ -102,23 +180,7 @@ The fix involved changing the pattern from **synchronous-with-async-init** to **
 
 * **Change App Name**: Edit `lib/constants/app_constants.dart`.
 * **Change Primary Color**: Edit `lib/constants/app_colors.dart`.
-    * Example: `static const Color lightPrimary = Color(0xFF6366F1);`
-* **Change App Version**: Update `pubspec.yaml`.
 * **Configure API Base URL**: Update `lib/constants/app_constants.dart`.
-
-### State Management Quick Patterns (Riverpod)
-
-* **Watch a provider (read-only)**: `final user = ref.watch(authProvider).user;`
-* **Modify state**: `ref.read(authProvider.notifier).logout();`
-* **Refresh a provider**: `ref.refresh(myProvider);`
-* **Listen to changes**: `ref.listen(authProvider, ...)`
-
-### Authentication Integration
-
-1.  Update the login method in `auth_provider.dart` to call the real API.
-2.  Use the `storageServiceProvider` to store the token (`await storage.setAuthToken(response['token'])`).
-3.  Ensure the API service sets the Auth token header (`_dio.options.headers['Authorization'] = 'Bearer $token';`).
-4.  Load the auth state on app startup (`_loadAuthState()`).
 
 ---
 
