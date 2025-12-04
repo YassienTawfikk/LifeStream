@@ -1,17 +1,33 @@
-// File: LifeStream/lib/pages/map/map_page.dart (Modified Content)
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:life_stream/constants/index.dart';
-import 'package:life_stream/widgets/index.dart'; // Import for PrimaryButton
+// File: lib/pages/map/map_page.dart (Updated with Google Maps)
 
-class LiveMapPage extends StatelessWidget {
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:life_stream/constants/index.dart';
+import 'package:life_stream/providers/location_provider.dart';
+import 'package:life_stream/widgets/index.dart';
+
+class LiveMapPage extends ConsumerStatefulWidget {
   const LiveMapPage({super.key});
 
   @override
+  ConsumerState<LiveMapPage> createState() => _LiveMapPageState();
+}
+
+class _LiveMapPageState extends ConsumerState<LiveMapPage> {
+  final Completer<GoogleMapController> _controller = Completer();
+
+  // Default initial position (Cairo, Egypt) - used while loading
+  static const CameraPosition _kDefaultPosition = CameraPosition(
+    target: LatLng(30.0444, 31.2357),
+    zoom: 14.4746,
+  );
+
+  @override
   Widget build(BuildContext context) {
-    // Simulated current mobile location (acting as the wearable location for the demo)
-    const String mobileGpsLocation = 'Mobile Device GPS (Giza, Egypt)';
-    const String simulatedWearableStatus = 'Tracking Mobile Location';
+    final locationAsync = ref.watch(locationProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -23,35 +39,67 @@ class LiveMapPage extends StatelessWidget {
       ),
       body: Column(
         children: [
-          // Simulated Map Container
           Expanded(
-            child: Container(
-              color: Colors.blueGrey[900], // Dark color to simulate a map view
-              child: Center(
+            child: locationAsync.when(
+              data: (position) {
+                // Create a marker for the current position
+                final Set<Marker> markers = {
+                  Marker(
+                    markerId: const MarkerId('currentLocation'),
+                    position: LatLng(position.latitude, position.longitude),
+                    infoWindow: const InfoWindow(title: 'My Location'),
+                    icon: BitmapDescriptor.defaultMarkerWithHue(
+                      BitmapDescriptor.hueBlue,
+                    ),
+                  ),
+                };
+
+                // Update camera if controller is ready
+                _updateCamera(position.latitude, position.longitude);
+
+                return GoogleMap(
+                  mapType: MapType.normal,
+                  initialCameraPosition: CameraPosition(
+                    target: LatLng(position.latitude, position.longitude),
+                    zoom: 16,
+                  ),
+                  markers: markers,
+                  myLocationEnabled: true, // Shows the blue dot
+                  myLocationButtonEnabled: true,
+                  onMapCreated: (GoogleMapController controller) {
+                    if (!_controller.isCompleted) {
+                      _controller.complete(controller);
+                    }
+                  },
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (err, stack) => Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Icon(
-                      Icons.gps_fixed_rounded,
-                      color: AppColors.lightPrimary,
-                      size: 64,
+                      Icons.error_outline,
+                      color: AppColors.lightError,
+                      size: 48,
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Interactive Map Placeholder',
-                      style: AppTextStyles.headlineSmall.copyWith(color: Colors.white),
-                    ),
-                    Text(
-                      'Displaying current device location as simulated wearable data.',
-                      style: AppTextStyles.bodyMedium.copyWith(color: Colors.white70),
+                      'Error getting location:\n$err',
                       textAlign: TextAlign.center,
+                      style: AppTextStyles.bodyMedium,
+                    ),
+                    const SizedBox(height: 16),
+                    PrimaryButton(
+                      label: 'Retry',
+                      onPressed: () => ref.refresh(locationProvider),
                     ),
                   ],
                 ),
               ),
             ),
           ),
-          // Location Details
+          // Status Panel
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -66,30 +114,28 @@ class LiveMapPage extends StatelessWidget {
             ),
             child: Column(
               children: [
-                _buildLocationDetail(
-                  context,
-                  Icons.watch,
-                  'Simulated Wearable Location:',
-                  mobileGpsLocation,
-                  Theme.of(context).primaryColor,
-                ),
-                const Divider(height: 20),
-                _buildLocationDetail(
-                  context,
-                  Icons.sync_rounded,
-                  'Status:',
-                  simulatedWearableStatus,
-                  Colors.green,
-                ),
-                const SizedBox(height: 16),
-                PrimaryButton(
-                  label: 'Simulate Location Update',
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Simulating receipt of new location data.')),
-                    );
-                  },
-                  isFullWidth: true,
+                Row(
+                  children: [
+                    const Icon(Icons.gps_fixed, color: AppColors.success),
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Status',
+                          style: AppTextStyles.labelSmall.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        Text(
+                          'Live Tracking Active',
+                          style: AppTextStyles.titleMedium.copyWith(
+                            color: AppColors.success,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -99,33 +145,14 @@ class LiveMapPage extends StatelessWidget {
     );
   }
 
-  Widget _buildLocationDetail(
-    BuildContext context,
-    IconData icon,
-    String title,
-    String subtitle,
-    Color color,
-  ) {
-    return Row(
-      children: [
-        Icon(icon, color: color),
-        const SizedBox(width: 12),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: AppTextStyles.labelSmall.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-            Text(
-              subtitle,
-              style: AppTextStyles.titleMedium,
-            ),
-          ],
+  Future<void> _updateCamera(double lat, double lng) async {
+    if (_controller.isCompleted) {
+      final GoogleMapController controller = await _controller.future;
+      controller.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(target: LatLng(lat, lng), zoom: 16),
         ),
-      ],
-    );
+      );
+    }
   }
 }

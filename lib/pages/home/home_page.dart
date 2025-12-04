@@ -8,6 +8,8 @@ import 'package:life_stream/widgets/index.dart';
 import 'dart:math';
 // Import the new Pulse Provider
 import 'package:life_stream/providers/pulse_provider.dart'; // NEW IMPORT
+import 'package:fl_chart/fl_chart.dart';
+import 'package:life_stream/providers/heart_rate_history_provider.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -19,18 +21,23 @@ class HomePage extends ConsumerStatefulWidget {
 class _HomePageState extends ConsumerState<HomePage>
     with SingleTickerProviderStateMixin {
   // Simulated Wearable Data
-  final String motionStatus = ['Idle', 'Walking', 'Running'][Random().nextInt(3)];
-  final bool dangerAlert = Random().nextBool(); // Simulated low battery/fall risk
+  final String motionStatus = [
+    'Idle',
+    'Walking',
+    'Running',
+  ][Random().nextInt(3)];
+  final bool dangerAlert = Random()
+      .nextBool(); // Simulated low battery/fall risk
 
   final List<int> heartRateHistory = [75, 82, 88, 91, 86, 95, 93];
 
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider).user;
-    
+
     // WATCH THE REAL-TIME PULSE PROVIDER HERE (STEP 2)
     final asyncPulse = ref.watch(realTimePulseProvider);
-    
+
     // Determine the current heart rate to display (live data > mock data)
     final int currentHeartRate = asyncPulse.when(
       data: (pulse) => pulse ?? 0, // Use live pulse data, default to 0
@@ -44,15 +51,14 @@ class _HomePageState extends ConsumerState<HomePage>
       loading: () => 'Loading...',
       error: (err, stack) => 'Error',
     );
-    
+
     // Determine a safe value and color for the progress indicator
     final double hrProgress = currentHeartRate / 120.0;
     final Color hrColor = currentHeartRate > 100
         ? AppColors.lightError
-        : currentHeartRate > 0 
-          ? AppColors.success 
-          : AppColors.textTertiary;
-
+        : currentHeartRate > 0
+        ? AppColors.success
+        : AppColors.textTertiary;
 
     return Scaffold(
       appBar: AppBar(
@@ -92,12 +98,18 @@ class _HomePageState extends ConsumerState<HomePage>
                 onTap: () {},
                 child: Row(
                   children: [
-                    const Icon(Icons.warning_rounded, color: AppColors.lightError, size: 28),
+                    const Icon(
+                      Icons.warning_rounded,
+                      color: AppColors.lightError,
+                      size: 28,
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         'DANGER ALERT: Bracelet needs attention (Low Battery/Fall Detected).',
-                        style: AppTextStyles.bodyMedium.copyWith(color: AppColors.lightError),
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: AppColors.lightError,
+                        ),
                       ),
                     ),
                   ],
@@ -115,7 +127,10 @@ class _HomePageState extends ConsumerState<HomePage>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.monitor_heart_rounded, color: Theme.of(context).primaryColor),
+                        Icon(
+                          Icons.monitor_heart_rounded,
+                          color: Theme.of(context).primaryColor,
+                        ),
                         const SizedBox(height: 8),
                         Text('Heart Rate', style: AppTextStyles.labelSmall),
                         const SizedBox(height: 4),
@@ -126,7 +141,10 @@ class _HomePageState extends ConsumerState<HomePage>
                         const SizedBox(height: 12),
                         // Simulated Mini Chart (Progress Bar)
                         LinearProgressIndicator(
-                          value: hrProgress.clamp(0.0, 1.0), // Use calculated progress
+                          value: hrProgress.clamp(
+                            0.0,
+                            1.0,
+                          ), // Use calculated progress
                           color: hrColor, // Use calculated color
                         ),
                       ],
@@ -140,7 +158,10 @@ class _HomePageState extends ConsumerState<HomePage>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.directions_run_rounded, color: AppColors.lightSecondary),
+                        Icon(
+                          Icons.directions_run_rounded,
+                          color: AppColors.lightSecondary,
+                        ),
                         const SizedBox(height: 8),
                         Text('Motion Status', style: AppTextStyles.labelSmall),
                         const SizedBox(height: 4),
@@ -148,16 +169,28 @@ class _HomePageState extends ConsumerState<HomePage>
                         const SizedBox(height: 12),
                         Text(
                           'Last 5 min.',
-                          style: AppTextStyles.labelSmall.copyWith(color: AppColors.textTertiary),
+                          style: AppTextStyles.labelSmall.copyWith(
+                            color: AppColors.textTertiary,
+                          ),
                         ),
                         // Add a mock badge for the status
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
-                            color: Theme.of(context).primaryColor.withOpacity(0.1),
+                            color: Theme.of(
+                              context,
+                            ).primaryColor.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Text(motionStatus, style: AppTextStyles.labelMedium.copyWith(color: Theme.of(context).primaryColor)),
+                          child: Text(
+                            motionStatus,
+                            style: AppTextStyles.labelMedium.copyWith(
+                              color: Theme.of(context).primaryColor,
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -179,7 +212,11 @@ class _HomePageState extends ConsumerState<HomePage>
                     child: AppCard(
                       child: Column(
                         children: [
-                          Icon(Icons.map_rounded, size: 32, color: Theme.of(context).primaryColor),
+                          Icon(
+                            Icons.map_rounded,
+                            size: 32,
+                            color: Theme.of(context).primaryColor,
+                          ),
                           const SizedBox(height: 8),
                           Text('Live Map', style: AppTextStyles.titleMedium),
                         ],
@@ -195,7 +232,11 @@ class _HomePageState extends ConsumerState<HomePage>
                     child: AppCard(
                       child: Column(
                         children: [
-                          Icon(Icons.contact_phone_rounded, size: 32, color: Theme.of(context).primaryColor),
+                          Icon(
+                            Icons.contact_phone_rounded,
+                            size: 32,
+                            color: Theme.of(context).primaryColor,
+                          ),
                           const SizedBox(height: 8),
                           Text('Contacts', style: AppTextStyles.titleMedium),
                         ],
@@ -212,13 +253,85 @@ class _HomePageState extends ConsumerState<HomePage>
             const SizedBox(height: 12),
             AppCard(
               child: SizedBox(
-                height: 150,
-                child: Center(
-                  child: Text(
-                    'Placeholder for a Line Chart showing HR history.\nLatest BPM: $currentHeartRate', // Updated to show live HR
-                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
-                    textAlign: TextAlign.center,
-                  ),
+                height: 200,
+                child: Consumer(
+                  builder: (context, ref, child) {
+                    final history = ref.watch(heartRateHistoryProvider);
+
+                    if (history.isEmpty) {
+                      return Center(
+                        child: Text(
+                          'Waiting for data...',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      );
+                    }
+
+                    return LineChart(
+                      LineChartData(
+                        gridData: FlGridData(
+                          show: true,
+                          drawVerticalLine: false,
+                          getDrawingHorizontalLine: (value) {
+                            return FlLine(
+                              color: AppColors.divider,
+                              strokeWidth: 1,
+                            );
+                          },
+                        ),
+                        titlesData: FlTitlesData(
+                          show: true,
+                          rightTitles: const AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
+                          topTitles: const AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
+                          bottomTitles: const AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
+                          leftTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              interval: 20,
+                              reservedSize: 40,
+                              getTitlesWidget: (value, meta) {
+                                return Text(
+                                  value.toInt().toString(),
+                                  style: AppTextStyles.labelSmall.copyWith(
+                                    color: AppColors.textTertiary,
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                        borderData: FlBorderData(show: false),
+                        minX: history.first.x,
+                        maxX: history.last.x,
+                        minY: 40,
+                        maxY: 160,
+                        lineBarsData: [
+                          LineChartBarData(
+                            spots: history,
+                            isCurved: true,
+                            color: Theme.of(context).primaryColor,
+                            barWidth: 3,
+                            isStrokeCapRound: true,
+                            dotData: const FlDotData(show: false),
+                            belowBarData: BarAreaData(
+                              show: true,
+                              color: Theme.of(
+                                context,
+                              ).primaryColor.withOpacity(0.1),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ),
             ),

@@ -5,7 +5,7 @@ import 'package:firebase_database/firebase_database.dart';
 
 // The path in your Firebase Realtime Database where the ESP32 sends data.
 // C Code path: "/pulseData/value"
-const String pulseDataPath = 'pulseData/value';
+const String pulseDataPath = 'pulseData/bpm';
 
 // Riverpod StreamProvider to listen to real-time pulse data
 // It streams an integer (the heart rate) or null if no data exists.
@@ -24,6 +24,6 @@ final realTimePulseProvider = StreamProvider.autoDispose<int?>((ref) {
       }
     }
     // Return null if no data exists or if data is not in the expected format
-    return null; 
+    return null;
   });
 });
