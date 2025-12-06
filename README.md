@@ -1,198 +1,218 @@
-# 🚀 LifeStream - Complete Project Documentation
+# 🚀 LifeStream - Personal Safety & Health Monitoring Platform
 
-This document consolidates all project information for **LifeStream**, a professional, modular, and production-ready Flutter starter application.
-
-## ✨ Project Summary
-
-**LifeStream** is a real-time personal safety platform streaming vitals, motion data, and SOS alerts from a smart wearable. The starter app is built following modern best practices and Material 3 design principles, complete and ready for development.
-
-| Detail | Status/Value | Source File |
-| :--- | :--- | :--- |
-| **Build Date** | December 1, 2025 | BUILD_COMPLETE.md |
-| **Flutter SDK** | ^3.10.1 | BUILD_COMPLETE.md |
-| **Status** | ✅ Complete & Ready for Development | BUILD_COMPLETE.md |
-| **Purpose** | Real-time personal safety platform | README.md |
-| **Total Dart Files** | 33 | BUILD_COMPLETE.md, FEATURE_CHECKLIST.md |
-| **Lines of Code** | ~3,500+ | BUILD_COMPLETE.md, FEATURE_CHECKLIST.md |
-| **Total Pages** | 9 complete pages | BUILD_COMPLETE.md, FEATURE_CHECKLIST.md |
+**LifeStream** is a cutting-edge mobile application designed for real-time personal safety and health monitoring. It integrates smart wearable data (heart rate) with location services to provide SOS alerts, real-time tracking, and automated emergency responses.
 
 ---
 
-## 🛠️ Key Technologies & Dependencies
+## ✨ Key Features
 
-| Category | Technology | Version |
-| :--- | :--- | :--- |
-| **Framework** | Flutter | 3.10.1+ |
-| **State Management** | Riverpod | 2.6.1 |
-| **Navigation** | GoRouter | 14.0.0 |
-| **HTTP Client** | Dio | 5.4.0 |
-| **Storage** | SharedPreferences | 2.2.3 |
-| **UI Framework** | Material 3 | Built-in |
+* **❤️ Real-time Heart Rate Monitoring**: Streams BPM data from wearable devices.
+* **🆘 SOS Emergency System**: One-tap SOS activation that alerts trusted contacts.
+* **📍 Live Location Tracking**: Real-time map shared with emergency contacts during an SOS.
+* **👥 Contact Management**: Add and manage trusted contacts and friends.
+* **🔔 Smart Notifications**: Alerts for friend requests, SOS triggers, and health anomalies.
+* **📱 Modern UI**: Built with Material 3 design principles for a smooth, intuitive experience.
 
 ---
 
-## 📁 Project Architecture and Features
+## 🛠️ Technology Stack
 
-The app features a modular structure with a clear separation of concerns, utilizing **Riverpod** for state management and **GoRouter** for navigation.
-
-### Project Structure (lib/)
-
-The structure is organized for scalability and long-term maintenance:
-
-* `main.dart`: App entry point
-* `app.dart`: Root app widget configuration
-* `constants/`: Centralized colors, text styles, and app constants
-* `models/`: Data models for User, Item, and Notification with JSON support
-* `services/`: API (Dio-based) and Storage (SharedPreferences wrapper) services
-* `providers/`: Riverpod providers for Auth, Theme, API, and Storage state
-* `routes/`: GoRouter configuration and route definitions
-* `utils/`: Theme data utilities
-* `widgets/`: Reusable components (Buttons, TextFields, Cards)
-* `pages/`: All feature pages (Splash, Auth, Home, List, Detail, Search, Notifications, Profile, Settings)
-
-### Completed Pages (9+)
-
-* **Splash/Onboarding Page**: Animated splash with Material 3 design and auto-navigation.
-* **Authentication Flow**: Login, Signup, and Forgot Password pages with built-in form validation.
-* **Home/Dashboard Page**: Featured items carousel and quick action cards.
-* **List & Detail Pages**: Grid/List views, filters, and full item detail views with a collapsible app bar.
-* **Search Page**: Search bar, recent searches, and popular categories.
-* **Notifications Page**: Type-based notification list with read/unread indicators.
-* **Profile & Settings Pages**: Editable user profile and settings for theme switching, account, and privacy.
+* **Framework**: [Flutter](https://flutter.dev/) (v3.10.1+)
+* **Language**: Dart (v3.0.0+)
+* **State Management**: [Riverpod](https://riverpod.dev/) (v2.0+)
+* **Navigation**: [GoRouter](https://pub.dev/packages/go_router)
+* **Backend & Cloud**:
+  * **Firebase Auth**: Secure user authentication.
+  * **Firebase Realtime Database**: Low-latency data syncing (Heart Rate, Location).
+  * **Firebase Storage**: Profile picture and asset storage.
+* **Maps**: Google Maps SDK (Android & iOS).
 
 ---
 
-## 🐛 `LateInitializationError` Fix Migration Guide
+## 🔐 Data Security & Encryption
 
-The app previously threw a `LateInitializationError` because `SharedPreferences` (`_prefs`) was not initialized before being used, due to incorrect storage initialization timing.
+The app implements **AES-256 Encryption** to secure sensitive user data stored locally on the device.
 
-The fix involved changing the pattern from **synchronous-with-async-init** to **fully async** using `FutureProvider`.
+### 🛡️ Implementation Details
 
-### The Fix in Riverpod
+- **Algorithm**: AES with a 256-bit key.
+* **Library**: `encrypt` package.
+* **Storage**: Encrypted data is stored in `SharedPreferences`.
 
-| Status | Before (Broken) | After (Fixed) |
-| :--- | :--- | :--- |
-| **Storage Provider** | `Provider<StorageService>` (Returns uninitialized service) | `FutureProvider<StorageService>` (Fully initializes before returning) |
-| **Initialization** | `init()` happens **after** provider already exists | `init()` happens **during** provider creation |
-| **Access Pattern** | `ref.read(storageServiceProvider)` | `await ref.read(storageServiceProvider.future)` |
+### 🔒 Encrypted Data Points
 
-### Key Takeaways
+1. **Auth Token**: The session token used for API/Firebase authentication.
+2. **User Profile**: cached user details (Name, Email, ID).
 
-1. **Never mix sync and async initialization** - Fully initialize before returning from a provider.
-2. **Use `FutureProvider` for async dependencies** (like `SharedPreferences`).
-3. **Always await async operations** - Use the `.future` suffix to access `FutureProvider` values.
-4. **Initialize early** - Do all setup in `main()` before creating `ProviderScope`.
+> [!NOTE]
+> **Educational/Starter Project Note**:
+> For this starter version, the encryption key is **hardcoded** in the source code (`lib/services/storage_service.dart`). In a production environment, you should use the device's secure hardware (iOS Keychain / Android Keystore) via packages like `flutter_secure_storage` to store the encryption key.
+
+---
+
+## 📂 Project Structure
+
+This project follows a feature-first and modular architecture to ensure scalability.
+
+```
+lib/
+├── main.dart               # 🏁 Application Entry Point
+├── app.dart               # 📱 Root Widget & Config
+├── firebase_options.dart  # ⚙️ Firebase Configuration (Auto-generated)
+├── constants/             # 🎨 App Colors, Strings, and Dimensions
+├── models/                # 📦 Data Models
+│   ├── user.dart          # User Profile Data
+│   ├── notification.dart  # Notification Structure
+│   ├── emergency_contact.dart # Contact Info
+│   └── ...
+├── pages/                 # 🖼️ UI Screens
+│   ├── auth/              # Login, Signup, Forgot Password
+│   ├── home/              # Main Dashboard
+│   ├── map/               # Live Location Map
+│   ├── sos/               # SOS Activation Screen
+│   ├── profile/           # User Settings & Profile
+│   └── ...
+├── providers/             # ⚡ State Management (Riverpod)
+│   ├── auth_provider.dart      # User Session State
+│   ├── location_provider.dart  # GPS Location State
+│   ├── pulse_provider.dart    # Heart Rate Data Stream
+│   └── ...
+├── services/              # 🔌 External Services & APIs
+│   ├── api_service.dart
+│   ├── storage_service.dart
+│   └── heart_rate_simulator.dart # Simulates BLE device data
+├── widgets/               # 🧩 Reusable UI Components
+└── utils/                 # 🛠️ Helper Functions
+```
 
 ---
 
 ## 🚀 Getting Started
 
-Follow these steps to set up the project locally.
+Follow these instructions to set up the project on your local machine.
 
-### Prerequisites
+### 1️⃣ Prerequisites
 
-* **Flutter SDK**: Version 3.10.1 or higher.
-* **Dart SDK**: Version 3.0.0 or higher.
-* **Git**: For cloning the repository.
-* **Google Cloud Console Account**: To generate Google Maps API keys.
-* **Firebase Project**: To generate configuration files.
+Before you begin, ensure you have the following installed:
 
-### ⚙️ Setup & Configuration
+* **Flutter SDK**: [Install here](https://docs.flutter.dev/get-started/install)
+* **Git**: [Install here](https://git-scm.com/downloads)
+* **VS Code** or **Android Studio**: Recommended IDEs.
+* **Firebase Account**: Required for backend services.
+* **Google Cloud Account**: Required for Maps API.
 
-#### 1. Clone the Repository
+### 2️⃣ Installation & Setup
+
+**Step 1: Clone the Repository**
+Open your terminal and run:
 
 ```bash
 git clone https://github.com/YassienTawfikk/LifeStream.git
 cd LifeStream
 ```
 
-#### 2. Install Dependencies
+**Step 2: Install Dependencies**
+Download all required Flutter packages:
 
 ```bash
 flutter pub get
 ```
 
-#### 3. Android Configuration (API Keys)
+### 3️⃣ Configuration (Critical Steps)
 
-The project uses `local.properties` to securely store the Google Maps API key for Android. This file is ignored by Git.
+The app relies on API keys for Google Maps and Firebase. You need to configure these manually as they are secrets and not tracked in Git.
 
-1. Navigate to the `android` directory.
-2. Create or edit the `local.properties` file.
-3. Add your Google Maps API key:
+#### 🗺️ Google Maps Setup
+
+**For Android:**
+
+1. Go to `android/` directory (inside the project).
+2. Create a file named `local.properties` (if it doesn't exist).
+3. Open it and add your Google Maps API Key:
 
     ```properties
-    flutter.sdk=/path/to/flutter
-    google.maps.key=YOUR_ANDROID_API_KEY_HERE
+    sdk.dir=/Users/YOUR_USERNAME/Library/Android/sdk
+    flutter.sdk=/Users/YOUR_USERNAME/development/flutter
+    google.maps.key=YOUR_ANDROID_MAPS_API_KEY
     ```
 
-#### 4. iOS Configuration (API Keys)
+    *(Note: Replace `YOUR_USERNAME` and paths with your actual system paths. `sdk.dir` is usually auto-generated if you open the project in Android Studio).*
 
-The project uses a `Secrets.xcconfig` file to securely store the Google Maps API key for iOS. This file is ignored by Git.
+**For iOS:**
 
-1. Navigate to `ios/Flutter/`.
+1. Go to `ios/Flutter/` directory.
 2. Create a file named `Secrets.xcconfig`.
-3. Add your Google Maps API key:
+3. Add your API Key:
 
     ```xcconfig
-    GOOGLE_MAPS_KEY=YOUR_IOS_API_KEY_HERE
+    GOOGLE_MAPS_KEY=YOUR_IOS_MAPS_API_KEY
     ```
 
-#### 5. Firebase Configuration
+#### 🔥 Firebase Setup
 
-You need to add the Firebase configuration files to the project.
-
-* **Android**: Download `google-services.json` from your Firebase console and place it in `android/app/`.
-* **iOS/macOS**: Download `GoogleService-Info.plist` from your Firebase console and place it in `ios/Runner/` and `macos/Runner/`.
-
-### ▶️ Running the App
-
-#### Run on Android
+**Option A: Using CLI (Recommended)**
+If you have the FlutterFire CLI installed, simply run:
 
 ```bash
-flutter run -d android
+flutterfire configure
 ```
 
-#### Run on iOS
+Follow the prompts to select your project and platforms. This will automatically generate `lib/firebase_options.dart` and update native files.
 
-```bash
-cd ios
-pod install
-cd ..
-flutter run -d ios
-```
+**Option B: Manual Setup**
 
-#### Run on Web
-
-```bash
-flutter run -d chrome
-```
-
-### 🛠️ Development Commands
-
-| Action | Command |
-| :--- | :--- |
-| Analyze code | `flutter analyze` |
-| Format code | `dart format lib/` |
-| Build for web | `flutter build web --release` |
-| Build for Android | `flutter build apk --release` |
-
-### Customization
-
-* **Change App Name**: Edit `lib/constants/app_constants.dart`.
-* **Change Primary Color**: Edit `lib/constants/app_colors.dart`.
-* **Configure API Base URL**: Update `lib/constants/app_constants.dart`.
+1. **Android**: Download `google-services.json` from Firebase Console -> Project Settings -> Android App. Place it in:
+    `android/app/google-services.json`
+2. **iOS**: Download `GoogleService-Info.plist` from Firebase Console -> Project Settings -> iOS App. Place it in:
+    `ios/Runner/GoogleService-Info.plist`
 
 ---
 
-## 🎯 Next Steps for Development
+## ▶️ How to Run
 
-The app is **Production Ready** but has several enhancement phases planned:
+### 🤖 Run on Android Emulator/Device
 
-| Phase | Key Tasks |
-| :--- | :--- |
-| **Phase 1: Backend Integration** | Connect to real API endpoints, implement proper JWT authentication, and handle refresh tokens. |
-| **Phase 2: Advanced Features** | Implement Push Notifications, Image upload, Offline support (Hive/Isar), and social features. |
-| **Phase 3: Performance & Optimization** | Implement Image caching, Lazy loading pagination, and Code splitting. |
-| **Phase 5: Testing** | Implement Unit, Widget, and Integration tests to achieve over 80% test coverage. |
+1. Launch your Android Emulator or connect a physical device (ensure USB Debugging is ON).
+2. Run the command:
 
-Would you like to explore any of these sections in more detail, such as reviewing the file list or the steps for backend integration?
+    ```bash
+    flutter run
+    ```
+
+### 🍎 Run on iOS Simulator/Device (Mac Only)
+
+1. Navigate to the iOS folder to install native pods:
+
+    ```bash
+    cd ios
+    pod install
+    cd ..
+    ```
+
+2. Launch an iOS Simulator.
+3. Run the command:
+
+    ```bash
+    flutter run
+    ```
+
+---
+
+## ❓ Troubleshooting
+
+### "SDK location not found" (Android)
+
+* **Cause**: The `local.properties` file is missing or points to the wrong Android SDK path.
+* **Fix**: Open the project in Android Studio (specifically the `android` folder) and let it sync. It will automatically create `local.properties` with the correct `sdk.dir`. Then add your `google.maps.key` line manually.
+
+### "CocoaPods not installed" or Pod errors (iOS)
+
+* **Cause**: Missing CocoaPods dependency manager.
+* **Fix**:
+
+    ```bash
+    sudo gem install cocoapods
+    cd ios
+    pod install
+    pod update
+    ```

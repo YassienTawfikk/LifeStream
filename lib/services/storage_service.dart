@@ -1,8 +1,17 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:life_stream/constants/index.dart';
+import 'package:encrypt/encrypt.dart' as encrypt;
 
 class StorageService {
   late SharedPreferences _prefs;
+
+  // Simple hardcoded key for "easiest" encryption as requested.
+  // In a real app, use SecureStorage to store the key.
+  static final _key = encrypt.Key.fromUtf8(
+    'LifeStreamSecureKey1234567890123',
+  ); // 32 chars
+  static final _iv = encrypt.IV.fromLength(16);
+  static final _encrypter = encrypt.Encrypter(encrypt.AES(_key));
 
   Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
@@ -10,11 +19,25 @@ class StorageService {
 
   // Auth Methods
   Future<void> setAuthToken(String token) async {
-    await _prefs.setString(AppConstants.userTokenKey, token);
+    try {
+      final encrypted = _encrypter.encrypt(token, iv: _iv);
+      await _prefs.setString(AppConstants.userTokenKey, encrypted.base64);
+    } catch (e) {
+      // Fallback to plain text if encryption fails (shouldn't happen)
+      await _prefs.setString(AppConstants.userTokenKey, token);
+    }
   }
 
   String? getAuthToken() {
-    return _prefs.getString(AppConstants.userTokenKey);
+    final storedValue = _prefs.getString(AppConstants.userTokenKey);
+    if (storedValue == null) return null;
+
+    try {
+      return _encrypter.decrypt64(storedValue, iv: _iv);
+    } catch (e) {
+      // If decryption fails, it might be old plain-text data. Return as is.
+      return storedValue;
+    }
   }
 
   Future<void> clearAuthToken() async {
@@ -23,11 +46,23 @@ class StorageService {
 
   // User Data Methods
   Future<void> setUserData(String userData) async {
-    await _prefs.setString(AppConstants.userDataKey, userData);
+    try {
+      final encrypted = _encrypter.encrypt(userData, iv: _iv);
+      await _prefs.setString(AppConstants.userDataKey, encrypted.base64);
+    } catch (e) {
+      await _prefs.setString(AppConstants.userDataKey, userData);
+    }
   }
 
   String? getUserData() {
-    return _prefs.getString(AppConstants.userDataKey);
+    final storedValue = _prefs.getString(AppConstants.userDataKey);
+    if (storedValue == null) return null;
+
+    try {
+      return _encrypter.decrypt64(storedValue, iv: _iv);
+    } catch (e) {
+      return storedValue;
+    }
   }
 
   Future<void> clearUserData() async {
