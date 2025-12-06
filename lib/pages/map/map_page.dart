@@ -1,10 +1,9 @@
-// File: lib/pages/map/map_page.dart (Updated with Google Maps)
-
-import 'dart:async';
+// File: lib/pages/map/map_page.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:life_stream/constants/index.dart';
 import 'package:life_stream/providers/location_provider.dart';
 import 'package:life_stream/widgets/index.dart';
@@ -17,9 +16,7 @@ class LiveMapPage extends ConsumerStatefulWidget {
 }
 
 class _LiveMapPageState extends ConsumerState<LiveMapPage> {
-  final Completer<GoogleMapController> _controller = Completer();
-
-  // Default initial position (Cairo, Egypt) - used while loading
+  final MapController _mapController = MapController();
 
   @override
   Widget build(BuildContext context) {
@@ -38,35 +35,51 @@ class _LiveMapPageState extends ConsumerState<LiveMapPage> {
           Expanded(
             child: locationAsync.when(
               data: (position) {
-                // Create a marker for the current position
-                final Set<Marker> markers = {
-                  Marker(
-                    markerId: const MarkerId('currentLocation'),
-                    position: LatLng(position.latitude, position.longitude),
-                    infoWindow: const InfoWindow(title: 'My Location'),
-                    icon: BitmapDescriptor.defaultMarkerWithHue(
-                      BitmapDescriptor.hueBlue,
+                // Update map center if needed (optional implementation choice)
+                // For now, we center on build. Ideally, we can listen to changes and move map.
+                // But auto-moving map on every update can be annoying if user pans.
+                // We'll trust the map controller to be handled or initial center.
+                // However, the previous implementation updated camera on *every* build?
+                // Yes, _updateCamera was called in build.
+                // Let's replicate that behavior but maybe safer.
+
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _mapController.move(
+                    LatLng(position.latitude, position.longitude),
+                    _mapController.camera.zoom,
+                  );
+                });
+
+                return FlutterMap(
+                  mapController: _mapController,
+                  options: MapOptions(
+                    initialCenter: LatLng(
+                      position.latitude,
+                      position.longitude,
                     ),
+                    initialZoom: 16.0,
                   ),
-                };
-
-                // Update camera if controller is ready
-                _updateCamera(position.latitude, position.longitude);
-
-                return GoogleMap(
-                  mapType: MapType.normal,
-                  initialCameraPosition: CameraPosition(
-                    target: LatLng(position.latitude, position.longitude),
-                    zoom: 16,
-                  ),
-                  markers: markers,
-                  myLocationEnabled: true, // Shows the blue dot
-                  myLocationButtonEnabled: true,
-                  onMapCreated: (GoogleMapController controller) {
-                    if (!_controller.isCompleted) {
-                      _controller.complete(controller);
-                    }
-                  },
+                  children: [
+                    TileLayer(
+                      urlTemplate:
+                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      userAgentPackageName: 'com.yassien.lifestream',
+                    ),
+                    MarkerLayer(
+                      markers: [
+                        Marker(
+                          point: LatLng(position.latitude, position.longitude),
+                          width: 80,
+                          height: 80,
+                          child: const Icon(
+                            Icons.location_on,
+                            color: Colors.blue,
+                            size: 40,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
@@ -140,16 +153,5 @@ class _LiveMapPageState extends ConsumerState<LiveMapPage> {
         ],
       ),
     );
-  }
-
-  Future<void> _updateCamera(double lat, double lng) async {
-    if (_controller.isCompleted) {
-      final GoogleMapController controller = await _controller.future;
-      controller.animateCamera(
-        CameraUpdate.newCameraPosition(
-          CameraPosition(target: LatLng(lat, lng), zoom: 16),
-        ),
-      );
-    }
   }
 }

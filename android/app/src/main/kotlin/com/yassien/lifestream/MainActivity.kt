@@ -1,4 +1,4 @@
-package com.example.life_stream
+package com.yassien.lifestream
 
 import io.flutter.embedding.android.FlutterActivity
 

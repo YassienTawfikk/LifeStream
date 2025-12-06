@@ -49,7 +49,6 @@
 	</array>
 	<key>io.flutter.embedded_views_preview</key>
 	<true/>
-	<key>GoogleMapsKey</key>
-	<string>$(GOOGLE_MAPS_KEY)</string>
+
 </dict>
 </plist>

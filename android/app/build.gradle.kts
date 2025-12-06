@@ -18,7 +18,7 @@ if (localPropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.example.life_stream"
+    namespace = "com.yassien.lifestream"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -38,7 +38,7 @@ android {
         applicationId = "com.example.life_stream"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 21
+        minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
