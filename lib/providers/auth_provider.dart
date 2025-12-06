@@ -92,9 +92,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
         await userCredential.user!.updateDisplayName(name);
         await userCredential.user!.reload(); // Reload to get updated profile
 
-        // CRITICAL FIX: Create user profile in Realtime Database immediately
-        // This ensures the user is searchable
-        await _updateRealtimeDatabaseProfile(name: name, bio: null);
+        // Create user place in Realtime Database with minimal info for search/id
+        await _initializeUserInRealtimeDB(name: name, email: email);
 
         // Force refresh of state since stream might fire before reload
         final updatedFirebaseUser = _auth.currentUser;
@@ -163,13 +162,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       await _auth.currentUser!.updateDisplayName(name);
 
-      // Bio handling is tricky without a DB.
-      // For now, we update local state/storage or just accept it's not fully persisted in Auth.
-      // If we want to persist bio, we need a separate DB like Firestore or Realtime Database.
-      // We should ideally sync this with Realtime DB 'users/{uid}/profile' as well.
-
-      // Update Realtime DB profile
-      await _updateRealtimeDatabaseProfile(name: name, bio: bio);
+      // We update local state/storage.
+      // Note: Realtime DB profile sync is removed as requested.
+      // Only initial creation logic remains.
 
       final currentUser = state.user;
       if (currentUser != null) {
@@ -195,30 +190,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
         throw Exception('File does not exist at path: ${imageFile.path}');
       }
 
-      // 1. Read bytes and resize/compress (Simplistic approach: strict 100kb limit logic usually needed)
-      // For this prototype, we'll read bytes and converting to base64.
-      // WARNING: Large strings in Realtime DB can be slow. Ideally strictly resize to 200x200px.
-      // We will assume the user picks a reasonable image or we rely on the DB capacity.
-      // A better approach in production without storage is a dedicated media server or strict client-side compression.
-
+      // 1. Read bytes and resize/compress (Simplistic approach)
       final bytes = await imageFile.readAsBytes();
-      // Basic check for size to prevent massive payload hanging the app
-      if (bytes.lengthInBytes > 500 * 1024) {
-        // 500KB limit for prototype safety.
-        // In real app, we would use 'flutter_image_compress' package here.
-        // throw Exception('Image too large. Please pick an image under 500KB.');
-        // We won't throw for now to allow testing, but performance may suffer.
-      }
-
       final base64Image = base64Encode(bytes);
 
-      // 2. Update Realtime DB (This is where the image lives now)
-      await _updateRealtimeDatabaseProfile(photoUrl: base64Image);
-
-      // 3. Update Local State
+      // 2. Update Local State (Realtime DB image sync removed)
       // Note: We cannot update user.updatePhotoURL() with base64 (limit is ~2k chars).
       // So auth.currentUser.photoURL will remain null or old URL.
-      // We rely completely on the 'user' object in state and Realtime DB.
+      // We rely completely on the 'user' object in state.
 
       final currentUser = state.user;
       if (currentUser != null) {
@@ -236,32 +215,39 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  // Helper to sync with Realtime DB (crucial for search and friends)
-  Future<void> _updateRealtimeDatabaseProfile({
-    String? name,
-    String? bio,
-    String? photoUrl,
+  // Helper to init user in Realtime DB (for search and friends functionality)
+  Future<void> _initializeUserInRealtimeDB({
+    required String name,
+    required String email,
   }) async {
     final user = _auth.currentUser;
     if (user == null) return;
 
-    // Use a transaction or simple update
-    // We only update fields that are passed
-    final Map<String, dynamic> updates = {};
-    if (name != null) updates['name'] = name;
-    if (bio != null) updates['bio'] = bio;
-    if (photoUrl != null) updates['profilePictureUrl'] = photoUrl;
+    // We only store essential info for search/friend lookups, dropping bio/images.
+    final Map<String, dynamic> updates = {
+      'name': name,
+      'email': email,
+      'createdAt': DateTime.now().toIso8601String(),
+    };
 
-    // Always ensure these exist
-    updates['email'] = user.email;
-    if (updates['name'] == null) updates['name'] = user.displayName ?? 'User';
-    // Add creation time if it doesn't exist (handled by update vs set) - but 'update' merges.
-    // For new users, we might want to set createdAt if we had a dedicated field in profile,
-    // but User model parses it from metadata usually, or we can explicit save it.
-    updates['createdAt'] = DateTime.now().toIso8601String();
-
+    // We keep it under 'profile' because existing search logic expects 'users/{uid}/profile'
+    // If we change this path, we must update FriendsProvider.
     final dbRef = FirebaseDatabase.instance.ref('users/${user.uid}/profile');
     await dbRef.update(updates);
+
+    // Also initialize the BPM node to ensuring the "place" (node) exists cleanly
+    final bpmRef = FirebaseDatabase.instance.ref('users/${user.uid}/bpm');
+    await bpmRef.update({'value': 0, 'timestamp': ServerValue.timestamp});
+
+    // Initialize the Location node
+    final locationRef = FirebaseDatabase.instance.ref(
+      'users/${user.uid}/location',
+    );
+    await locationRef.update({
+      'latitude': 0.0,
+      'longitude': 0.0,
+      'timestamp': ServerValue.timestamp,
+    });
   }
 }
 
