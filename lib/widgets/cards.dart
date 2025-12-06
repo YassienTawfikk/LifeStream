@@ -16,13 +16,17 @@ class AppCard extends StatelessWidget {
     this.padding = const EdgeInsets.all(16),
     this.borderRadius = 16,
     this.backgroundColor,
+    this.margin,
   });
+
+  final EdgeInsetsGeometry? margin;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
+        margin: margin,
         decoration: BoxDecoration(
           color: backgroundColor ?? Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(borderRadius),
@@ -34,10 +38,7 @@ class AppCard extends StatelessWidget {
             ),
           ],
         ),
-        child: Padding(
-          padding: padding,
-          child: child,
-        ),
+        child: Padding(padding: padding, child: child),
       ),
     );
   }
@@ -166,16 +167,9 @@ class EmptyStateWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            icon,
-            size: 64,
-            color: AppColors.textTertiary,
-          ),
+          Icon(icon, size: 64, color: AppColors.textTertiary),
           const SizedBox(height: 16),
-          Text(
-            title,
-            style: AppTextStyles.headlineSmall,
-          ),
+          Text(title, style: AppTextStyles.headlineSmall),
           const SizedBox(height: 8),
           Text(
             description,

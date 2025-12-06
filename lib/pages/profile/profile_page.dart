@@ -1,8 +1,11 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:life_stream/constants/index.dart';
 import 'package:life_stream/providers/auth_provider.dart';
+import 'package:life_stream/providers/friends_provider.dart';
 import 'package:life_stream/widgets/index.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
@@ -17,6 +20,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   late TextEditingController _bioController;
   bool _isEditing = false;
   bool _isSaving = false;
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -33,14 +37,43 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     super.dispose();
   }
 
+  Future<void> _pickImage() async {
+    try {
+      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+      if (image == null) return;
+
+      setState(() => _isSaving = true);
+
+      // Use AuthProvider to update image
+      await ref
+          .read(authProvider.notifier)
+          .updateProfileImage(File(image.path));
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profile photo updated successfully')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
+    }
+  }
+
   void _saveProfile() async {
     setState(() => _isSaving = true);
 
     try {
-      await ref.read(authProvider.notifier).updateProfile(
-            _nameController.text,
-            _bioController.text,
-          );
+      await ref
+          .read(authProvider.notifier)
+          .updateProfile(_nameController.text, _bioController.text);
 
       if (mounted) {
         setState(() => _isEditing = false);
@@ -85,26 +118,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         child: Column(
           children: [
             // Avatar
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  colors: [
-                    Theme.of(context).primaryColor,
-                    Theme.of(context).primaryColor.withValues(alpha: 0.7),
-                  ],
-                ),
-              ),
-              child: Center(
-                child: Text(
-                  (user?.name ?? 'U').substring(0, 1).toUpperCase(),
-                  style: AppTextStyles.displayLarge.copyWith(
-                    color: Colors.white,
-                  ),
-                ),
-              ),
+            UserAvatar(
+              profilePictureUrl: user?.profilePictureUrl,
+              name: user?.name ?? 'User',
+              radius: 60,
+              onTap: _isSaving ? null : _pickImage,
             ),
             const SizedBox(height: 24),
 
@@ -167,79 +185,43 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       textAlign: TextAlign.center,
                     ),
                   ],
+                  const SizedBox(height: 24),
+                  // Friend Count
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(
+                        context,
+                      ).primaryColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.people,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          '${ref.watch(friendsProvider).friends.length} Friends',
+                          style: AppTextStyles.titleMedium.copyWith(
+                            color: Theme.of(context).primaryColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
 
             const SizedBox(height: 40),
 
-            // Stats
-            if (!_isEditing)
-              Row(
-                children: [
-                  Expanded(
-                    child: AppCard(
-                      child: Column(
-                        children: [
-                          Text(
-                            '245',
-                            style: AppTextStyles.headlineMedium,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Items',
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: AppCard(
-                      child: Column(
-                        children: [
-                          Text(
-                            '1.2K',
-                            style: AppTextStyles.headlineMedium,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Followers',
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: AppCard(
-                      child: Column(
-                        children: [
-                          Text(
-                            '856',
-                            style: AppTextStyles.headlineMedium,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Following',
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
             if (!_isEditing) ...[
-              const SizedBox(height: 40),
               PrimaryButton(
                 label: 'Go to Settings',
                 onPressed: () => context.push('/settings'),

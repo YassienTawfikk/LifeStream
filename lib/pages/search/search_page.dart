@@ -1,24 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:life_stream/constants/index.dart';
+import 'package:life_stream/providers/friends_provider.dart';
 import 'package:life_stream/widgets/index.dart';
+import 'package:life_stream/models/friend_request.dart';
+import 'package:life_stream/models/user.dart';
 
-class SearchPage extends StatefulWidget {
+class SearchPage extends ConsumerStatefulWidget {
   const SearchPage({super.key});
 
   @override
-  State<SearchPage> createState() => _SearchPageState();
+  ConsumerState<SearchPage> createState() => _SearchPageState();
 }
 
-class _SearchPageState extends State<SearchPage> {
+class _SearchPageState extends ConsumerState<SearchPage> {
   late TextEditingController _searchController;
   bool _isSearching = false;
-  final List<String> recentSearches = [
-    'Mountains',
-    'Nature',
-    'Urban',
-    'Photography',
-  ];
+  List<User> _searchResults = [];
 
   @override
   void initState() {
@@ -32,187 +31,126 @@ class _SearchPageState extends State<SearchPage> {
     super.dispose();
   }
 
-  void _performSearch(String query) {
-    // Mock search
+  Future<void> _performSearch(String query) async {
+    if (query.isEmpty) return;
+
     setState(() => _isSearching = true);
-    Future.delayed(const Duration(milliseconds: 1000), () {
+
+    try {
+      final results = await ref
+          .read(friendsProvider.notifier)
+          .searchUsers(query);
+      if (mounted) {
+        setState(() {
+          _searchResults = results;
+        });
+      }
+    } finally {
       if (mounted) {
         setState(() => _isSearching = false);
       }
-    });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final friendsState = ref.watch(friendsProvider);
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
         ),
-        title: const Text('Search'),
+        title: const Text('Find Friends'),
       ),
-      body: SingleChildScrollView(
+      body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Search Bar
             TextField(
               controller: _searchController,
-              onChanged: (value) {
-                if (value.isNotEmpty) {
-                  _performSearch(value);
-                }
-              },
+              onSubmitted: _performSearch, // Search on enter
               decoration: InputDecoration(
-                hintText: 'Search items...',
+                hintText: 'Search by name or email...',
                 prefixIcon: const Icon(Icons.search),
-                suffixIcon: _searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _searchController.clear();
-                          setState(() {});
-                        },
-                      )
-                    : null,
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.arrow_forward),
+                  onPressed: () => _performSearch(_searchController.text),
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppColors.border),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                    color: Theme.of(context).primaryColor,
-                    width: 2,
-                  ),
                 ),
               ),
             ),
             const SizedBox(height: 24),
 
-            // Results or Recent Searches
-            if (_searchController.text.isEmpty)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Recent Searches',
-                    style: AppTextStyles.headlineSmall,
-                  ),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: recentSearches
-                        .map(
-                          (search) => InputChip(
-                            label: Text(search),
-                            onPressed: () {
-                              _searchController.text = search;
-                              _performSearch(search);
-                              setState(() {});
-                            },
-                            onDeleted: () {
-                              // Remove search
-                              setState(() {
-                                recentSearches.remove(search);
-                              });
-                            },
-                          ),
-                        )
-                        .toList(),
-                  ),
-                  const SizedBox(height: 32),
-                  Text(
-                    'Popular Categories',
-                    style: AppTextStyles.headlineSmall,
-                  ),
-                  const SizedBox(height: 12),
-                  GridView.count(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    children: [
-                      _buildCategoryCard(
-                        Icons.landscape,
-                        'Nature',
-                      ),
-                      _buildCategoryCard(
-                        Icons.apartment,
-                        'Urban',
-                      ),
-                      _buildCategoryCard(
-                        Icons.camera,
-                        'Photography',
-                      ),
-                      _buildCategoryCard(
-                        Icons.travel_explore,
-                        'Adventure',
-                      ),
-                    ],
-                  ),
-                ],
-              )
-            else
-              _isSearching
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const SizedBox(height: 60),
-                          const CircularProgressIndicator(),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Searching...',
-                            style: AppTextStyles.bodyMedium,
-                          ),
-                        ],
-                      ),
-                    )
-                  : EmptyStateWidget(
+            // Results
+            Expanded(
+              child: _isSearching
+                  ? const Center(child: CircularProgressIndicator())
+                  : _searchResults.isEmpty && _searchController.text.isNotEmpty
+                  ? EmptyStateWidget(
                       icon: Icons.search_off,
-                      title: 'No Results Found',
+                      title: 'No Users Found',
                       description:
-                          'Try searching with different keywords',
-                      onRetry: () {
-                        _searchController.clear();
-                        setState(() {});
+                          'Try checking the spelling or use a different email.',
+                      onRetry: () => _performSearch(_searchController.text),
+                    )
+                  : ListView.builder(
+                      itemCount: _searchResults.length,
+                      itemBuilder: (context, index) {
+                        final user = _searchResults[index];
+                        final isFriend = friendsState.friends.any(
+                          (f) => f.id == user.id,
+                        );
+                        final isPending = friendsState.sentRequests.any(
+                          (r) =>
+                              r.receiverId == user.id &&
+                              r.status == RequestStatus.pending,
+                        );
+
+                        return AppCard(
+                          padding: const EdgeInsets.all(12),
+                          margin: const EdgeInsets.only(bottom: 12),
+                          child: ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            leading: UserAvatar(
+                              profilePictureUrl: user.profilePictureUrl,
+                              name: user.name,
+                              radius: 20,
+                            ),
+                            title: Text(
+                              user.name,
+                              style: AppTextStyles.titleMedium,
+                            ),
+                            subtitle: Text(
+                              user.email,
+                              style: AppTextStyles.bodySmall,
+                            ),
+                            trailing: isFriend
+                                ? const Chip(
+                                    label: Text('Friends'),
+                                    visualDensity: VisualDensity.compact,
+                                  )
+                                : isPending
+                                ? const Chip(
+                                    label: Text('Sent'),
+                                    visualDensity: VisualDensity.compact,
+                                  )
+                                : FilledButton.tonal(
+                                    onPressed: () {
+                                      ref
+                                          .read(friendsProvider.notifier)
+                                          .sendRequest(user);
+                                    },
+                                    child: const Text('Add'),
+                                  ),
+                          ),
+                        );
                       },
                     ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCategoryCard(IconData icon, String label) {
-    return GestureDetector(
-      onTap: () {
-        _searchController.text = label;
-        _performSearch(label);
-        setState(() {});
-      },
-      child: AppCard(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              size: 40,
-              color: Theme.of(context).primaryColor,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: AppTextStyles.titleMedium,
-              textAlign: TextAlign.center,
             ),
           ],
         ),

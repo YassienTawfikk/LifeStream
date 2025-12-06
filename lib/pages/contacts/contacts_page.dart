@@ -1,97 +1,43 @@
-// File: LifeStream/lib/pages/contacts/contacts_page.dart (New File)
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:life_stream/constants/index.dart';
-import 'package:life_stream/widgets/index.dart';
 
-class EmergencyContactsPage extends StatefulWidget {
+import 'package:life_stream/providers/friends_provider.dart';
+import 'package:life_stream/widgets/index.dart';
+import 'package:life_stream/models/friend_request.dart';
+
+class EmergencyContactsPage extends ConsumerStatefulWidget {
   const EmergencyContactsPage({super.key});
 
   @override
-  State<EmergencyContactsPage> createState() => _EmergencyContactsPageState();
+  ConsumerState<EmergencyContactsPage> createState() =>
+      _EmergencyContactsPageState();
 }
 
-class _EmergencyContactsPageState extends State<EmergencyContactsPage> {
-  final List<Map<String, String>> _contacts = [
-    {'name': 'Dr. Mohamed ElSayed', 'phone': '+201001234567', 'relation': 'Physician'},
-    {'name': 'Aya Tawfik', 'phone': '+201009876543', 'relation': 'Sister'},
-  ];
+class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
 
-  void _addContact(String name, String phone, String relation) {
-    setState(() {
-      _contacts.add({'name': name, 'phone': phone, 'relation': relation});
-    });
-    Navigator.pop(context); // Close dialog
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
   }
 
-  void _removeContact(int index) {
-    // Note: To avoid index out of bounds after deletion, we need a slight adjustment
-    final removedContactName = _contacts[index]['name'];
-    setState(() {
-      _contacts.removeAt(index);
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$removedContactName removed from contacts.')),
-    );
-  }
-
-  void _showAddContactDialog() {
-    final nameController = TextEditingController();
-    final phoneController = TextEditingController();
-    final relationController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Add Emergency Contact', style: AppTextStyles.titleLarge),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CustomTextField(
-                label: 'Name',
-                hint: 'John Doe',
-                controller: nameController,
-              ),
-              const SizedBox(height: 16),
-              CustomTextField(
-                label: 'Phone',
-                hint: '+201000000000',
-                controller: phoneController,
-                keyboardType: TextInputType.phone,
-              ),
-              const SizedBox(height: 16),
-              CustomTextField(
-                label: 'Relation',
-                hint: 'Family/Friend/Doctor',
-                controller: relationController,
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () {
-              if (nameController.text.isNotEmpty && phoneController.text.isNotEmpty) {
-                _addContact(nameController.text, phoneController.text, relationController.text);
-              }
-            },
-            child: const Text('Add'),
-          ),
-        ],
-      ),
-    );
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final friendsState = ref.watch(friendsProvider);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Emergency Contacts'),
+        title: const Text('Emergency Friends'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
@@ -99,47 +45,123 @@ class _EmergencyContactsPageState extends State<EmergencyContactsPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.person_add),
-            onPressed: _showAddContactDialog,
+            onPressed: () => context.push('/search'),
           ),
         ],
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(text: 'My Friends'),
+            Tab(text: 'Requests'),
+          ],
+        ),
       ),
-      body: _contacts.isEmpty
-          ? EmptyStateWidget(
-              icon: Icons.supervisor_account_outlined,
-              title: 'No Contacts Added',
-              description: 'Add contacts to be notified in an emergency.',
-              onRetry: _showAddContactDialog,
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.all(12),
-              itemCount: _contacts.length,
-              itemBuilder: (context, index) {
-                final contact = _contacts[index];
-                return AppCard(
-                  onTap: () {},
-                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
-                      child: Icon(Icons.person, color: Theme.of(context).primaryColor),
-                    ),
-                    title: Text(contact['name']!, style: AppTextStyles.titleMedium),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(contact['phone']!, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary)),
-                        if (contact['relation']!.isNotEmpty)
-                          Text('Relation: ${contact['relation']}', style: AppTextStyles.labelSmall.copyWith(color: AppColors.textTertiary)),
-                      ],
-                    ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete_outline, color: AppColors.lightError),
-                      onPressed: () => _removeContact(index),
-                    ),
-                  ),
-                );
-              },
-            ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          // Friends List
+          friendsState.friends.isEmpty
+              ? EmptyStateWidget(
+                  icon: Icons.people_outline,
+                  title: 'No Emergency Friends',
+                  description:
+                      'Add friends to notify them in case of emergency.',
+                  onRetry: () => context.push('/search'),
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.all(12),
+                  itemCount: friendsState.friends.length,
+                  itemBuilder: (context, index) {
+                    final friend = friendsState.friends[index];
+                    return AppCard(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 16,
+                      ),
+                      child: ListTile(
+                        leading: UserAvatar(
+                          profilePictureUrl: friend.profilePictureUrl,
+                          name: friend.name,
+                          radius: 20,
+                        ),
+                        title: Text(
+                          friend.name,
+                          style: AppTextStyles.titleMedium,
+                        ),
+                        subtitle: Text(
+                          friend.email,
+                          style: AppTextStyles.bodySmall,
+                        ),
+                        trailing: const Icon(
+                          Icons.shield,
+                          color: AppColors.success,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+
+          // Requests List
+          friendsState.receivedRequests
+                  .where((r) => r.status == RequestStatus.pending)
+                  .isEmpty
+              ? const Center(child: Text('No pending requests'))
+              : ListView.builder(
+                  padding: const EdgeInsets.all(12),
+                  itemCount: friendsState.receivedRequests
+                      .where((r) => r.status == RequestStatus.pending)
+                      .length,
+                  itemBuilder: (context, index) {
+                    final request = friendsState.receivedRequests
+                        .where((r) => r.status == RequestStatus.pending)
+                        .toList()[index];
+                    return AppCard(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 16,
+                      ),
+                      child: Column(
+                        children: [
+                          ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            title: Text(
+                              request.senderName,
+                              style: AppTextStyles.titleMedium,
+                            ),
+                            subtitle: Text(
+                              request.senderEmail,
+                              style: AppTextStyles.bodySmall,
+                            ),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              TextButton(
+                                onPressed: () {
+                                  ref
+                                      .read(friendsProvider.notifier)
+                                      .rejectRequest(request.id);
+                                },
+                                child: const Text('Decline'),
+                              ),
+                              const SizedBox(width: 8),
+                              FilledButton(
+                                onPressed: () {
+                                  ref
+                                      .read(friendsProvider.notifier)
+                                      .acceptRequest(request);
+                                },
+                                child: const Text('Accept'),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+        ],
+      ),
     );
   }
 }

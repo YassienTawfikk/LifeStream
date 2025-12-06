@@ -1,3 +1,4 @@
+// File: lib/pages/sos/sos_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -5,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:life_stream/constants/index.dart';
 import 'package:life_stream/providers/auth_provider.dart';
+import 'package:life_stream/providers/friends_provider.dart';
 import 'package:life_stream/widgets/index.dart';
 
 class SosPage extends ConsumerStatefulWidget {
@@ -30,31 +32,44 @@ class _SosPageState extends ConsumerState<SosPage> {
       final userId = user?.id ?? 'unknown_user';
 
       // 2. Get Current Location
-      // Check permissions first (simplified for SOS, assuming permissions granted from Map page)
-      // In a real app, you'd want robust permission handling here too.
       final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
       );
 
-      // 3. Send to Firebase
-      final databaseRef = FirebaseDatabase.instance.ref('sos_alerts/$userId');
+      // 3. Notify Friends
+      // Ideally this should be a Cloud Function triggered by a single write.
+      // But we will write to each friend's alert node from the client for this prototype.
+      final friends = ref.read(friendsProvider).friends;
+      final database = FirebaseDatabase.instance;
 
-      await databaseRef.set({
+      final alertData = {
         'status': 'ACTIVE',
         'timestamp': ServerValue.timestamp,
         'latitude': position.latitude,
         'longitude': position.longitude,
-        'user_name': user?.name ?? 'Unknown',
-      });
+        'senderId': userId,
+        'senderName': user?.name ?? 'Unknown',
+        'message': 'SOS Alert! I need help!',
+      };
+
+      // Write to own SOS log
+      await database.ref('sos_alerts/$userId').set(alertData);
+
+      // Write to friends modules
+      for (var friend in friends) {
+        // Pushing a new alert to the friend's Alerts collection
+        // Assuming we have a path like `users/{friendId}/alerts`
+        await database.ref('users/${friend.id}/alerts').push().set(alertData);
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'SOS Alert Sent! Location shared with emergency contacts.',
-            ),
+          SnackBar(
+            content: Text('SOS Sent! Notified ${friends.length} friends.'),
             backgroundColor: AppColors.lightError,
-            duration: Duration(seconds: 5),
+            duration: const Duration(seconds: 5),
           ),
         );
       }
@@ -81,9 +96,8 @@ class _SosPageState extends ConsumerState<SosPage> {
       final user = ref.read(authProvider).user;
       final userId = user?.id ?? 'unknown_user';
 
-      // Update status to RESOLVED
-      final databaseRef = FirebaseDatabase.instance.ref('sos_alerts/$userId');
-      await databaseRef.update({
+      // Update own status to RESOLVED
+      await FirebaseDatabase.instance.ref('sos_alerts/$userId').update({
         'status': 'RESOLVED',
         'resolved_at': ServerValue.timestamp,
       });
@@ -137,11 +151,11 @@ class _SosPageState extends ConsumerState<SosPage> {
                   decoration: BoxDecoration(
                     color: isAlertTriggered
                         ? AppColors.lightError
-                        : AppColors.lightError.withOpacity(0.8),
+                        : AppColors.lightError.withValues(alpha: 0.8),
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.lightError.withOpacity(0.5),
+                        color: AppColors.lightError.withValues(alpha: 0.5),
                         blurRadius: 20,
                         spreadRadius: 5,
                       ),
@@ -182,7 +196,7 @@ class _SosPageState extends ConsumerState<SosPage> {
                 )
               else
                 Text(
-                  'Your location and vitals will be sent automatically.',
+                  'Your location and vitals will be sent automatically to your Emergency Friends.',
                   style: AppTextStyles.bodyMedium.copyWith(
                     color: AppColors.textSecondary,
                   ),
