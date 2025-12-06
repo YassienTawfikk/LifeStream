@@ -67,6 +67,18 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
           onPressed: () => context.pop(),
         ),
         title: const Text('Notifications'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.done_all),
+            tooltip: 'Mark all as read',
+            onPressed: () {
+              ref.read(notificationsProvider.notifier).markAllAsRead();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Marked all as read')),
+              );
+            },
+          ),
+        ],
       ),
       body: notifications.isEmpty
           ? EmptyStateWidget(
@@ -85,7 +97,14 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                       ? Theme.of(context).cardColor
                       : Theme.of(context).primaryColor.withValues(alpha: 0.05),
                   onTap: () {
-                    // Handle notification tap
+                    // Navigate if it has location data (e.g. SOS)
+                    if (notification.latitude != null &&
+                        notification.longitude != null) {
+                      // For this prototype, we'll just open the map page.
+                      // If we want to show a specific pin, we'd need to update the MapPage to accept arg.
+                      // Updating MapPage to accept coordinates is the best UX.
+                      context.push('/live-map');
+                    }
                   },
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,

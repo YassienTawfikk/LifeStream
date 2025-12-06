@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:life_stream/constants/index.dart';
-import 'package:life_stream/providers/auth_provider.dart';
+
 import 'package:life_stream/providers/theme_provider.dart';
 import 'package:life_stream/widgets/index.dart';
 
@@ -42,10 +42,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Device Settings',
-                    style: AppTextStyles.headlineSmall,
-                  ),
+                  Text('Device Settings', style: AppTextStyles.headlineSmall),
                   const SizedBox(height: 12),
                   AppCard(
                     child: Column(
@@ -85,17 +82,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 ],
               ),
             ),
-            
+
             // Appearance Section
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Appearance',
-                    style: AppTextStyles.headlineSmall,
-                  ),
+                  Text('Appearance', style: AppTextStyles.headlineSmall),
                   const SizedBox(height: 12),
                   AppCard(
                     child: Column(
@@ -103,9 +97,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         _buildSettingTile(
                           icon: Icons.light_mode,
                           title: 'Light Theme',
-                          onTap: () => ref
-                              .read(themeModeProvider.notifier)
-                              .setLight(),
+                          onTap: () =>
+                              ref.read(themeModeProvider.notifier).setLight(),
                           isSelected: themeMode == ThemeMode.light,
                         ),
                         const Divider(height: 1),
@@ -120,9 +113,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         _buildSettingTile(
                           icon: Icons.brightness_auto,
                           title: 'System Default',
-                          onTap: () => ref
-                              .read(themeModeProvider.notifier)
-                              .setSystem(),
+                          onTap: () =>
+                              ref.read(themeModeProvider.notifier).setSystem(),
                           isSelected: themeMode == ThemeMode.system,
                         ),
                       ],
@@ -138,10 +130,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Account',
-                    style: AppTextStyles.headlineSmall,
-                  ),
+                  Text('Account', style: AppTextStyles.headlineSmall),
                   const SizedBox(height: 12),
                   AppCard(
                     child: Column(
@@ -156,11 +145,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           icon: Icons.lock,
                           title: 'Change Password',
                           onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Feature coming soon'),
-                              ),
-                            );
+                            context.push('/change-password');
                           },
                         ),
                         const Divider(height: 1),
@@ -189,10 +174,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'App',
-                    style: AppTextStyles.headlineSmall,
-                  ),
+                  Text('App', style: AppTextStyles.headlineSmall),
                   const SizedBox(height: 12),
                   AppCard(
                     child: Column(
@@ -234,14 +216,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             ),
             const SizedBox(height: 24),
 
-            // Logout Button
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: PrimaryButton(
-                label: 'Logout',
-                onPressed: () => _handleLogout(),
-              ),
-            ),
             const SizedBox(height: 24),
 
             // Version Info
@@ -264,18 +238,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(
-          AppConstants.appName,
-          style: AppTextStyles.headlineSmall,
-        ),
+        title: Text(AppConstants.appName, style: AppTextStyles.headlineSmall),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              AppConstants.appDescription,
-              style: AppTextStyles.bodyMedium,
-            ),
+            Text(AppConstants.appDescription, style: AppTextStyles.bodyMedium),
             const SizedBox(height: 16),
             Text(
               'Version: ${AppConstants.appVersion}',
@@ -293,32 +261,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     );
   }
 
-  void _handleLogout() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              ref.read(authProvider.notifier).logout();
-              context.go('/login');
-            },
-            child: const Text(
-              'Logout',
-              style: TextStyle(color: Colors.red),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildSettingTile({
     required IconData icon,
     required String title,
@@ -329,10 +271,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       leading: Icon(icon),
       title: Text(title),
       trailing: isSelected
-          ? Icon(
-              Icons.check_circle,
-              color: Theme.of(context).primaryColor,
-            )
+          ? Icon(Icons.check_circle, color: Theme.of(context).primaryColor)
           : null,
       onTap: onTap,
     );

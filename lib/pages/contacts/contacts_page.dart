@@ -37,7 +37,7 @@ class _EmergencyContactsPageState extends ConsumerState<EmergencyContactsPage>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Emergency Friends'),
+        title: const Text('Friends'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),

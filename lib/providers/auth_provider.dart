@@ -12,14 +12,26 @@ class AuthState {
   final bool isAuthenticated;
   final User? user;
   final String? error;
+  final bool isLoading;
 
-  AuthState({this.isAuthenticated = false, this.user, this.error});
+  AuthState({
+    this.isAuthenticated = false,
+    this.user,
+    this.error,
+    this.isLoading = false,
+  });
 
-  AuthState copyWith({bool? isAuthenticated, User? user, String? error}) {
+  AuthState copyWith({
+    bool? isAuthenticated,
+    User? user,
+    String? error,
+    bool? isLoading,
+  }) {
     return AuthState(
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
       user: user ?? this.user,
       error: error ?? this.error,
+      isLoading: isLoading ?? this.isLoading,
     );
   }
 }
@@ -76,10 +88,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
         password: password,
       );
 
-      // Update display name
       if (userCredential.user != null) {
         await userCredential.user!.updateDisplayName(name);
         await userCredential.user!.reload(); // Reload to get updated profile
+
+        // CRITICAL FIX: Create user profile in Realtime Database immediately
+        // This ensures the user is searchable
+        await _updateRealtimeDatabaseProfile(name: name, bio: null);
+
         // Force refresh of state since stream might fire before reload
         final updatedFirebaseUser = _auth.currentUser;
         if (updatedFirebaseUser != null) {
@@ -106,6 +122,37 @@ class AuthNotifier extends StateNotifier<AuthState> {
       await storage.logout();
     } catch (e) {
       state = state.copyWith(error: e.toString());
+      rethrow;
+    }
+  }
+
+  Future<void> changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final user = _auth.currentUser;
+      if (user == null) {
+        throw Exception('User not authenticated');
+      }
+
+      // Re-authenticate
+      final cred = firebase_auth.EmailAuthProvider.credential(
+        email: user.email!,
+        password: currentPassword,
+      );
+      await user.reauthenticateWithCredential(cred);
+
+      // Update Password
+      await user.updatePassword(newPassword);
+
+      state = state.copyWith(isLoading: false);
+    } catch (e) {
+      final message = e is firebase_auth.FirebaseAuthException
+          ? e.message
+          : e.toString();
+      state = state.copyWith(isLoading: false, error: message);
       rethrow;
     }
   }
@@ -204,8 +251,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
     if (name != null) updates['name'] = name;
     if (bio != null) updates['bio'] = bio;
     if (photoUrl != null) updates['profilePictureUrl'] = photoUrl;
-    // Always ensure email is there
+
+    // Always ensure these exist
     updates['email'] = user.email;
+    if (updates['name'] == null) updates['name'] = user.displayName ?? 'User';
+    // Add creation time if it doesn't exist (handled by update vs set) - but 'update' merges.
+    // For new users, we might want to set createdAt if we had a dedicated field in profile,
+    // but User model parses it from metadata usually, or we can explicit save it.
+    updates['createdAt'] = DateTime.now().toIso8601String();
 
     final dbRef = FirebaseDatabase.instance.ref('users/${user.uid}/profile');
     await dbRef.update(updates);

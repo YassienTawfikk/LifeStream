@@ -8,6 +8,7 @@ import 'package:life_stream/widgets/index.dart';
 import 'dart:math';
 // Import the new Pulse Provider
 import 'package:life_stream/providers/pulse_provider.dart'; // NEW IMPORT
+import 'package:life_stream/providers/notifications_provider.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -66,7 +67,20 @@ class _HomePageState extends ConsumerState<HomePage>
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_none),
+            icon: Consumer(
+              builder: (context, ref, child) {
+                final notifications = ref.watch(notificationsProvider);
+                final unreadCount = notifications
+                    .where((n) => !n.isRead)
+                    .length;
+
+                return Badge(
+                  isLabelVisible: unreadCount > 0,
+                  label: Text(unreadCount > 9 ? '9+' : '$unreadCount'),
+                  child: const Icon(Icons.notifications_none),
+                );
+              },
+            ),
             onPressed: () => context.push('/notifications'),
           ),
           IconButton(
@@ -92,7 +106,7 @@ class _HomePageState extends ConsumerState<HomePage>
             // 2. Danger Alert Indicator
             if (dangerAlert) ...[
               AppCard(
-                backgroundColor: AppColors.lightError.withOpacity(0.1),
+                backgroundColor: AppColors.lightError.withValues(alpha: 0.1),
                 onTap: () {},
                 child: Row(
                   children: [
@@ -180,7 +194,7 @@ class _HomePageState extends ConsumerState<HomePage>
                           decoration: BoxDecoration(
                             color: Theme.of(
                               context,
-                            ).primaryColor.withOpacity(0.1),
+                            ).primaryColor.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -236,7 +250,7 @@ class _HomePageState extends ConsumerState<HomePage>
                             color: Theme.of(context).primaryColor,
                           ),
                           const SizedBox(height: 8),
-                          Text('Contacts', style: AppTextStyles.titleMedium),
+                          Text('Friends', style: AppTextStyles.titleMedium),
                         ],
                       ),
                     ),

@@ -58,44 +58,58 @@ class FriendsNotifier extends StateNotifier<FriendsState> {
   }
 
   void _subscribeToFriends(String userId) {
-    _database.ref('users/$userId/friends').onValue.listen((event) async {
-      final data = event.snapshot.value;
-      if (data == null) {
-        state = state.copyWith(friends: []);
-        return;
-      }
+    _database
+        .ref('users/$userId/friends')
+        .onValue
+        .listen(
+          (event) async {
+            final data = event.snapshot.value;
+            if (data == null) {
+              state = state.copyWith(friends: []);
+              return;
+            }
 
-      final friendIds = (data as Map).keys.toList();
-      final List<User> loadedFriends = [];
+            final friendIds = (data as Map).keys.toList();
+            final List<User> loadedFriends = [];
 
-      // Fetch friend details (ideally this should be optimized or denormalized)
-      // For now we fetch each friend's profile
-      for (var friendId in friendIds) {
-        final friendSnapshot = await _database
-            .ref('users/$friendId/profile')
-            .get();
-        if (friendSnapshot.value != null) {
-          final friendData = Map<String, dynamic>.from(
-            friendSnapshot.value as Map,
-          );
-          friendData['id'] = friendId;
-          // Ensure mandatory fields exist to avoid parsing error
-          if (!friendData.containsKey('name')) {
-            friendData['name'] = 'Unknown';
-          }
-          if (!friendData.containsKey('email')) {
-            friendData['email'] = '';
-          }
-          if (!friendData.containsKey('createdAt')) {
-            friendData['createdAt'] = DateTime.now().toIso8601String();
-          }
+            // Fetch friend details (ideally this should be optimized or denormalized)
+            // For now we fetch each friend's profile
+            for (var friendId in friendIds) {
+              if (friendId == userId) {
+                continue; // SAFEGUARD: Never show self in friend list
+              }
 
-          loadedFriends.add(User.fromJson(friendData));
-        }
-      }
+              final friendSnapshot = await _database
+                  .ref('users/$friendId/profile')
+                  .get();
+              if (friendSnapshot.value != null) {
+                final friendData = Map<String, dynamic>.from(
+                  friendSnapshot.value as Map,
+                );
+                friendData['id'] = friendId;
+                // Ensure mandatory fields exist to avoid parsing error
+                if (!friendData.containsKey('name')) {
+                  friendData['name'] = 'Unknown';
+                }
+                if (!friendData.containsKey('email')) {
+                  friendData['email'] = '';
+                }
+                if (!friendData.containsKey('createdAt')) {
+                  friendData['createdAt'] = DateTime.now().toIso8601String();
+                }
 
-      state = state.copyWith(friends: loadedFriends);
-    });
+                loadedFriends.add(User.fromJson(friendData));
+              }
+            }
+
+            state = state.copyWith(friends: loadedFriends);
+            state = state.copyWith(friends: loadedFriends);
+          },
+          onError: (error) {
+            // Handle permission/sync errors
+            state = state.copyWith(error: error.toString(), friends: []);
+          },
+        );
   }
 
   void _subscribeToRequests(String userId) {
@@ -104,18 +118,28 @@ class FriendsNotifier extends StateNotifier<FriendsState> {
         .orderByChild('receiverId')
         .equalTo(userId)
         .onValue
-        .listen((event) {
-          _processRequests(event, isReceived: true);
-        });
+        .listen(
+          (event) {
+            _processRequests(event, isReceived: true);
+          },
+          onError: (error) {
+            // Handle error
+          },
+        );
 
     _database
         .ref('friend_requests')
         .orderByChild('senderId')
         .equalTo(userId)
         .onValue
-        .listen((event) {
-          _processRequests(event, isReceived: false);
-        });
+        .listen(
+          (event) {
+            _processRequests(event, isReceived: false);
+          },
+          onError: (error) {
+            // Handle error
+          },
+        );
   }
 
   void _processRequests(DatabaseEvent event, {required bool isReceived}) {
@@ -138,32 +162,18 @@ class FriendsNotifier extends StateNotifier<FriendsState> {
   }
 
   Future<List<User>> searchUsers(String query) async {
-    // Note: Firebase Realtime Database search is limited.
-    // We will query by email as it's exact, or fetching all users and filtering (efficient only for small scale)
-    // For this prototype, we'll assume exact email search or query 'name' if indexed.
-
-    // Simple implementation: Search by email
     try {
-      // Ideally we need a 'users_lookup' node for searching.
-      // We'll search profile/email
-      // Querying by value requires .indexOn in rules
-
-      // Fallback for prototype: Fetch all users (WARNING: Not scalable)
-      // Better approach: Query users node, order by email
-      // But 'users' node contains nested data.
-
-      // Let's implement searching by exact email which is common for "add friend"
-      // Or iterate users
-
       final snapshot = await _database.ref('users').get();
       if (snapshot.value == null) return [];
 
       final usersMap = snapshot.value as Map;
       final List<User> results = [];
+      final q = query.toLowerCase().trim();
 
       usersMap.forEach((key, value) {
         if (key == _auth.currentUser?.uid) return; // Exclude self
 
+        // Robust parsing: 'users/{id}/profile'
         final userData = value['profile'];
         if (userData != null) {
           final userMap = Map<String, dynamic>.from(userData as Map);
@@ -172,16 +182,12 @@ class FriendsNotifier extends StateNotifier<FriendsState> {
           // Search logic
           final name = (userMap['name'] ?? '').toString().toLowerCase();
           final email = (userMap['email'] ?? '').toString().toLowerCase();
-          final q = query.toLowerCase();
 
-          if (name.contains(q) || email.contains(q)) {
-            // Ensure mandatory
-            if (!userMap.containsKey('name')) {
-              userMap['name'] = 'Unknown';
-            }
-            if (!userMap.containsKey('email')) {
-              userMap['email'] = '';
-            }
+          // If query is empty, add everyone. Else match query.
+          if (q.isEmpty || name.contains(q) || email.contains(q)) {
+            // Ensure mandatory fields
+            if (!userMap.containsKey('name')) userMap['name'] = 'Unknown';
+            if (!userMap.containsKey('email')) userMap['email'] = '';
             if (!userMap.containsKey('createdAt')) {
               userMap['createdAt'] = DateTime.now().toIso8601String();
             }
@@ -193,7 +199,6 @@ class FriendsNotifier extends StateNotifier<FriendsState> {
 
       return results;
     } catch (e) {
-      // debugPrint('Search Error: $e');
       return [];
     }
   }
@@ -202,7 +207,8 @@ class FriendsNotifier extends StateNotifier<FriendsState> {
     final sender = _auth.currentUser;
     if (sender == null) return;
 
-    // Check if already friends or requested
+    // Check if already friends or requested or SELF
+    if (receiver.id == sender.uid) return; // SAFEGUARD: Prevent self-request
     if (state.friends.any((u) => u.id == receiver.id)) return;
     if (state.sentRequests.any(
       (r) => r.receiverId == receiver.id && r.status == RequestStatus.pending,
@@ -228,18 +234,25 @@ class FriendsNotifier extends StateNotifier<FriendsState> {
     final currentUser = _auth.currentUser;
     if (currentUser == null) return;
 
+    // Determine the ID of the friend (the one who isn't the current user)
+    // This handles cases where we might be acting on a request weirdly
+    final friendId = request.senderId == currentUser.uid
+        ? request.receiverId
+        : request.senderId;
+
+    if (friendId == currentUser.uid) {
+      // Prevent self-friending
+      return;
+    }
+
     // 1. Update request status
     await _database.ref('friend_requests/${request.id}').update({
       'status': RequestStatus.accepted.name,
     });
 
     // 2. Add to friends list for both
-    await _database
-        .ref('users/${currentUser.uid}/friends/${request.senderId}')
-        .set(true);
-    await _database
-        .ref('users/${request.senderId}/friends/${currentUser.uid}')
-        .set(true);
+    await _database.ref('users/${currentUser.uid}/friends/$friendId').set(true);
+    await _database.ref('users/$friendId/friends/${currentUser.uid}').set(true);
   }
 
   Future<void> rejectRequest(String requestId) async {

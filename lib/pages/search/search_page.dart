@@ -23,6 +23,10 @@ class _SearchPageState extends ConsumerState<SearchPage> {
   void initState() {
     super.initState();
     _searchController = TextEditingController();
+    // Trigger initial search to show all users
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _performSearch('');
+    });
   }
 
   @override
