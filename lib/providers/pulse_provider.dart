@@ -2,6 +2,7 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:life_stream/providers/auth_provider.dart';
 
 // The path in your Firebase Realtime Database where the ESP32 sends data.
 // C Code path: "/pulseData/value"
@@ -10,8 +11,14 @@ const String pulseDataPath = 'pulseData/bpm';
 // Riverpod StreamProvider to listen to real-time pulse data
 // It streams an integer (the heart rate) or null if no data exists.
 final realTimePulseProvider = StreamProvider.autoDispose<int?>((ref) {
+  final user = ref.watch(authProvider).user;
+  if (user == null) return Stream.value(null);
+
   // 1. Get a reference to the Realtime Database instance and the specific path
-  final databaseRef = FirebaseDatabase.instance.ref(pulseDataPath);
+  // Path: users/{uid}/bpm/value
+  final databaseRef = FirebaseDatabase.instance.ref(
+    'users/${user.id}/bpm/value',
+  );
 
   // 2. Return a stream that listens to value changes (onValue)
   // The stream automatically fetches the data any time the value at the path changes.

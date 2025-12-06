@@ -7,8 +7,9 @@ import 'package:life_stream/providers/auth_provider.dart';
 import 'package:life_stream/widgets/index.dart';
 import 'dart:math';
 // Import the new Pulse Provider
-import 'package:life_stream/providers/pulse_provider.dart'; // NEW IMPORT
+import 'package:life_stream/providers/pulse_provider.dart';
 import 'package:life_stream/providers/notifications_provider.dart';
+import 'package:life_stream/services/heart_rate_simulator.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -27,6 +28,25 @@ class _HomePageState extends ConsumerState<HomePage>
   ][Random().nextInt(3)];
   final bool dangerAlert = Random()
       .nextBool(); // Simulated low battery/fall risk
+
+  @override
+  void initState() {
+    super.initState();
+    // Start Heart Rate Simulation
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(heartRateSimulatorProvider).startSimulation();
+    });
+  }
+
+  @override
+  void dispose() {
+    // Stop Simulation when leaving (optional, but good practice if not needed globally)
+    // Note: Provider is not autoDispose, so simulation might continue if we don't stop it,
+    // or if we want it to run in background we leave it.
+    // For this prototype, let's keep it running or restart it safely.
+    // ref.read(heartRateSimulatorProvider).stopSimulation();
+    super.dispose();
+  }
 
   final List<int> heartRateHistory = [75, 82, 88, 91, 86, 95, 93];
 
