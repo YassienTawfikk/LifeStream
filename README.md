@@ -161,6 +161,7 @@ flutterfire configure
 Follow the prompts to select your project and platforms. This will automatically generate `lib/firebase_options.dart` and update native files.
 
 **Option B: Manual Setup**
+Manual setup is required for both Android and iOS.
 
 1. **Android**: Download `google-services.json` from Firebase Console -> Project Settings -> Android App. Place it in:
     `android/app/google-services.json`
