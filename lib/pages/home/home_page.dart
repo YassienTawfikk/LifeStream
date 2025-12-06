@@ -8,8 +8,6 @@ import 'package:life_stream/widgets/index.dart';
 import 'dart:math';
 // Import the new Pulse Provider
 import 'package:life_stream/providers/pulse_provider.dart'; // NEW IMPORT
-import 'package:fl_chart/fl_chart.dart';
-import 'package:life_stream/providers/heart_rate_history_provider.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -253,15 +251,17 @@ class _HomePageState extends ConsumerState<HomePage>
             const SizedBox(height: 12),
             AppCard(
               child: SizedBox(
-                height: 200,
+                height: 150,
                 child: Consumer(
                   builder: (context, ref, child) {
-                    final history = ref.watch(heartRateHistoryProvider);
+                    // We just need the current pulse for the ECG speed/frequency
+                    final asyncPulse = ref.watch(realTimePulseProvider);
+                    final int bpm = asyncPulse.valueOrNull ?? 0;
 
-                    if (history.isEmpty) {
+                    if (bpm == 0) {
                       return Center(
                         child: Text(
-                          'Waiting for data...',
+                          'Waiting for signal...',
                           style: AppTextStyles.bodyMedium.copyWith(
                             color: AppColors.textSecondary,
                           ),
@@ -269,68 +269,7 @@ class _HomePageState extends ConsumerState<HomePage>
                       );
                     }
 
-                    return LineChart(
-                      LineChartData(
-                        gridData: FlGridData(
-                          show: true,
-                          drawVerticalLine: false,
-                          getDrawingHorizontalLine: (value) {
-                            return FlLine(
-                              color: AppColors.divider,
-                              strokeWidth: 1,
-                            );
-                          },
-                        ),
-                        titlesData: FlTitlesData(
-                          show: true,
-                          rightTitles: const AxisTitles(
-                            sideTitles: SideTitles(showTitles: false),
-                          ),
-                          topTitles: const AxisTitles(
-                            sideTitles: SideTitles(showTitles: false),
-                          ),
-                          bottomTitles: const AxisTitles(
-                            sideTitles: SideTitles(showTitles: false),
-                          ),
-                          leftTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              interval: 20,
-                              reservedSize: 40,
-                              getTitlesWidget: (value, meta) {
-                                return Text(
-                                  value.toInt().toString(),
-                                  style: AppTextStyles.labelSmall.copyWith(
-                                    color: AppColors.textTertiary,
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                        borderData: FlBorderData(show: false),
-                        minX: history.first.x,
-                        maxX: history.last.x,
-                        minY: 40,
-                        maxY: 160,
-                        lineBarsData: [
-                          LineChartBarData(
-                            spots: history,
-                            isCurved: true,
-                            color: Theme.of(context).primaryColor,
-                            barWidth: 3,
-                            isStrokeCapRound: true,
-                            dotData: const FlDotData(show: false),
-                            belowBarData: BarAreaData(
-                              show: true,
-                              color: Theme.of(
-                                context,
-                              ).primaryColor.withOpacity(0.1),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
+                    return EcgChart(bpm: bpm, height: 150);
                   },
                 ),
               ),
