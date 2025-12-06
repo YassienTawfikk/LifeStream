@@ -35,7 +35,8 @@ The app implements **AES-256 Encryption** to secure sensitive user data stored l
 
 ### 🛡️ Implementation Details
 
-- **Algorithm**: AES with a 256-bit key.
+* **Algorithm**: AES with a 256-bit key.
+
 * **Library**: `encrypt` package.
 * **Storage**: Encrypted data is stored in `SharedPreferences`.
 
@@ -54,7 +55,7 @@ The app implements **AES-256 Encryption** to secure sensitive user data stored l
 
 This project follows a feature-first and modular architecture to ensure scalability.
 
-```
+```bash
 lib/
 ├── main.dart               # 🏁 Application Entry Point
 ├── app.dart               # 📱 Root Widget & Config
