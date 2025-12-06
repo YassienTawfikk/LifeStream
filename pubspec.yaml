@@ -37,6 +37,7 @@ dependencies:
   # NEW: Firebase Dependencies
   firebase_core: ^4.2.1 
   firebase_database: ^12.1.0 
+  firebase_auth: ^6.1.2 
   # ----------------------------------
 
 dev_dependencies:
