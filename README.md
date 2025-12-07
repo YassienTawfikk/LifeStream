@@ -100,7 +100,6 @@ Before you begin, ensure you have the following installed:
 * **Git**: [Install here](https://git-scm.com/downloads)
 * **VS Code** or **Android Studio**: Recommended IDEs.
 * **Firebase Account**: Required for backend services.
-* **Google Cloud Account**: Required for Maps API.
 
 ### 2️⃣ Installation & Setup
 
@@ -121,33 +120,11 @@ flutter pub get
 
 ### 3️⃣ Configuration (Critical Steps)
 
-The app relies on API keys for Google Maps and Firebase. You need to configure these manually as they are secrets and not tracked in Git.
+The app relies on Firebase for backend services. You need to configure it manually as the configuration files are secrets and not tracked in Git.
 
-#### 🗺️ Google Maps Setup
+#### 🗺️ Map Configuration
 
-**For Android:**
-
-1. Go to `android/` directory (inside the project).
-2. Create a file named `local.properties` (if it doesn't exist).
-3. Open it and add your Google Maps API Key:
-
-    ```properties
-    sdk.dir=/Users/YOUR_USERNAME/Library/Android/sdk
-    flutter.sdk=/Users/YOUR_USERNAME/development/flutter
-    google.maps.key=YOUR_ANDROID_MAPS_API_KEY
-    ```
-
-    *(Note: Replace `YOUR_USERNAME` and paths with your actual system paths. `sdk.dir` is usually auto-generated if you open the project in Android Studio).*
-
-**For iOS:**
-
-1. Go to `ios/Flutter/` directory.
-2. Create a file named `Secrets.xcconfig`.
-3. Add your API Key:
-
-    ```xcconfig
-    GOOGLE_MAPS_KEY=YOUR_IOS_MAPS_API_KEY
-    ```
+**Good news!** This project uses **OpenStreetMap**, so **no API Key is required** for the map to work. You can skip any Google Maps setup.
 
 #### 🔥 Firebase Setup
 
@@ -205,7 +182,7 @@ Manual setup is required for both Android and iOS.
 ### "SDK location not found" (Android)
 
 * **Cause**: The `local.properties` file is missing or points to the wrong Android SDK path.
-* **Fix**: Open the project in Android Studio (specifically the `android` folder) and let it sync. It will automatically create `local.properties` with the correct `sdk.dir`. Then add your `google.maps.key` line manually.
+* **Fix**: Open the project in Android Studio (specifically the `android` folder) and let it sync. It will automatically create `local.properties` with the correct `sdk.dir`.
 
 ### "CocoaPods not installed" or Pod errors (iOS)
 
