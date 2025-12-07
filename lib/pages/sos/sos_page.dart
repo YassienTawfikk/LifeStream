@@ -7,6 +7,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:life_stream/constants/index.dart';
 import 'package:life_stream/providers/auth_provider.dart';
 import 'package:life_stream/providers/friends_provider.dart';
+import 'package:life_stream/providers/pulse_provider.dart';
 import 'package:life_stream/widgets/index.dart';
 
 class SosPage extends ConsumerStatefulWidget {
@@ -44,14 +45,20 @@ class _SosPageState extends ConsumerState<SosPage> {
       final friends = ref.read(friendsProvider).friends;
       final database = FirebaseDatabase.instance;
 
+      // Get current BPM
+      final bpmAsync = ref.read(realTimePulseProvider);
+      final int? currentBpm = bpmAsync.valueOrNull;
+
       final alertData = {
         'status': 'ACTIVE',
         'timestamp': ServerValue.timestamp,
         'latitude': position.latitude,
         'longitude': position.longitude,
+        'bpm': currentBpm,
         'senderId': userId,
         'senderName': user?.name ?? 'Unknown',
-        'message': 'SOS Alert! I need help!',
+        'message':
+            'SOS Alert! I need help! (BPM: ${currentBpm ?? 'N/A'}, Loc: ${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)})',
       };
 
       // Write to own SOS log

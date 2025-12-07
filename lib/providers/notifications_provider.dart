@@ -129,6 +129,7 @@ class RealNotificationsNotifier extends StateNotifier<List<Notification>> {
               longitude: map['longitude'] != null
                   ? (map['longitude'] as num).toDouble()
                   : null,
+              bpm: map['bpm'] != null ? (map['bpm'] as num).toInt() : null,
             ),
           );
         });
@@ -157,6 +158,7 @@ class RealNotificationsNotifier extends StateNotifier<List<Notification>> {
           timestamp: n.timestamp,
           latitude: n.latitude,
           longitude: n.longitude,
+          bpm: n.bpm,
         );
       }).toList();
 

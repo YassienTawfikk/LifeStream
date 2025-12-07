@@ -7,6 +7,7 @@ class Notification {
   final DateTime timestamp;
   final double? latitude;
   final double? longitude;
+  final int? bpm;
 
   Notification({
     required this.id,
@@ -17,6 +18,7 @@ class Notification {
     required this.timestamp,
     this.latitude,
     this.longitude,
+    this.bpm,
   });
 
   factory Notification.fromJson(Map<String, dynamic> json) {
@@ -29,6 +31,7 @@ class Notification {
       timestamp: DateTime.parse(json['timestamp'] as String),
       latitude: json['latitude'] as double?,
       longitude: json['longitude'] as double?,
+      bpm: json['bpm'] as int?,
     );
   }
 
@@ -41,5 +44,6 @@ class Notification {
     'timestamp': timestamp.toIso8601String(),
     'latitude': latitude,
     'longitude': longitude,
+    'bpm': bpm,
   };
 }

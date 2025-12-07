@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:life_stream/constants/index.dart';
@@ -96,14 +97,29 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                   backgroundColor: notification.isRead
                       ? Theme.of(context).cardColor
                       : Theme.of(context).primaryColor.withValues(alpha: 0.05),
-                  onTap: () {
+                  onTap: () async {
                     // Navigate if it has location data (e.g. SOS)
                     if (notification.latitude != null &&
                         notification.longitude != null) {
-                      // For this prototype, we'll just open the map page.
-                      // If we want to show a specific pin, we'd need to update the MapPage to accept arg.
-                      // Updating MapPage to accept coordinates is the best UX.
-                      context.push('/live-map');
+                      final coords =
+                          '${notification.latitude},${notification.longitude}';
+                      await Clipboard.setData(ClipboardData(text: coords));
+
+                      // Mark as read when interacted with
+                      if (!notification.isRead) {
+                        await ref
+                            .read(notificationsProvider.notifier)
+                            .markAsRead(notification.id);
+                      }
+
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Coordinates copied: $coords'),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      }
                     }
                   },
                   child: Row(
@@ -160,6 +176,52 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                               overflow: TextOverflow.ellipsis,
                             ),
                             const SizedBox(height: 8),
+                            const SizedBox(height: 8),
+                            // Display BPM and Location if available
+                            if (notification.bpm != null ||
+                                notification.latitude != null)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8.0),
+                                child: Row(
+                                  children: [
+                                    if (notification.bpm != null) ...[
+                                      Icon(
+                                        Icons.monitor_heart_outlined,
+                                        size: 16,
+                                        color: AppColors.lightError,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        '${notification.bpm} BPM',
+                                        style: AppTextStyles.labelMedium
+                                            .copyWith(
+                                              color: AppColors.lightError,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                    ],
+                                    if (notification.latitude != null) ...[
+                                      Icon(
+                                        Icons.location_on_outlined,
+                                        size: 16,
+                                        color: Theme.of(context).primaryColor,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        'Location Attached',
+                                        style: AppTextStyles.labelMedium
+                                            .copyWith(
+                                              color: Theme.of(
+                                                context,
+                                              ).primaryColor,
+                                            ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
+
                             // Action Buttons for Friend Requests
                             if (notification.type == 'info' &&
                                 notification.title.contains(

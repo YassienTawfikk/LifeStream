@@ -194,11 +194,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final bytes = await imageFile.readAsBytes();
       final base64Image = base64Encode(bytes);
 
-      // 2. Update Local State (Realtime DB image sync removed)
-      // Note: We cannot update user.updatePhotoURL() with base64 (limit is ~2k chars).
-      // So auth.currentUser.photoURL will remain null or old URL.
-      // We rely completely on the 'user' object in state.
+      // 2. Sync to Realtime Database (Restored)
+      // This allows friends to download and view the image.
+      final dbRef = FirebaseDatabase.instance.ref('users/${user.uid}/profile');
+      await dbRef.update({'profilePictureUrl': base64Image});
 
+      // 3. Update Local State
       final currentUser = state.user;
       if (currentUser != null) {
         final updatedUser = currentUser.copyWith(
