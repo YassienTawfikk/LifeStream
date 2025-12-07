@@ -146,57 +146,61 @@ This project utilizes a modern technology stack including Flutter for the cross-
 
 ## Contributors
 
-## Contributors
 
 <div>
-<table align="center">
-  <tr>
-        <td align="center">
-      <a href="https://github.com/YassienTawfikk" target="_blank">
-        <img src="https://avatars.githubusercontent.com/u/126521373?v=4" width="150px;" alt="Yassien Tawfik"/>
-        <br />
-        <sub><b>Yassien Tawfik</b></sub>
-      </a>
-    </td>
-      <td align="center">
-      <a href="https://github.com/Mazenmarwan023" target="_blank">
-        <img src="https://avatars.githubusercontent.com/u/127551364?v=4" width="150px;" alt="Mazen Marwan"/>
-        <br />
-        <sub><b>Mazen Marwan</b></sub>
-      </a>
-    </td>
-    <td align="center">
-      <a href="https://github.com/madonna-mosaad" target="_blank">
-        <img src="https://avatars.githubusercontent.com/u/127048836?v=4" width="150px;" alt="Madonna Mosaad"/>
-        <br />
-        <sub><b>Madonna Mosaad</b></sub>
-      </a>
-    </td>
-        <td align="center">
-      <a href="https://github.com/nancymahmoud1" target="_blank">
-        <img src="https://avatars.githubusercontent.com/u/125357872?v=4" width="150px;" alt="Nancy Mahmoud"/>
-        <br />
-        <sub><b>Nancy Mahmoud</b></sub>
-      </a>
-    </td>
-    </td>
-        <td align="center">
-      <a href="https://github.com/mohamedddyasserr" target="_blank">
-        <img src="https://avatars.githubusercontent.com/u/126451832?v=4" width="150px;" alt="Mohamed Yasser"/>
-        <br />
-        <sub><b>Mohamed Yasser</b></sub>
-      </a>
-    </td>
-      <td align="center">
-      <a href="https://github.com/Seiftaha" target="_blank">
-        <img src="https://avatars.githubusercontent.com/u/127027353?v=4" width="150px;" alt="Seif Taha"/>
-        <br />
-        <sub><b>Seif Taha</b></sub>
-      </a>
-    </td>
-  </tr>
-</table>
+    <table align="center">
+        <tr>
+            <td align="center">
+                <a href="https://github.com/YassienTawfikk" target="_blank">
+                    <img src="https://avatars.githubusercontent.com/u/126521373?v=4" width="150px;"
+                         alt="Yassien Tawfik"/>
+                    <br/>
+                    <sub><b>Yassien Tawfik</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/madonna-mosaad" target="_blank">
+                    <img src="https://avatars.githubusercontent.com/u/127048836?v=4" width="150px;"
+                         alt="Madonna Mosaad"/>
+                    <br/>
+                    <sub><b>Madonna Mosaad</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/Seiftaha" target="_blank">
+                    <img src="https://avatars.githubusercontent.com/u/127027353?v=4" width="150px;" alt="Seif Taha"/>
+                    <br/>
+                    <sub><b>Seif Taha</b></sub>
+                </a>
+            </td>         
+            <td align="center">
+                <a href="https://github.com/Mazenmarwan023" target="_blank">
+                    <img src="https://avatars.githubusercontent.com/u/127551364?v=4" width="150px;" alt="Mazen Marwan"/>
+                    <br/>
+                    <sub><b>Mazen Marwan</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/nancymahmoud1" target="_blank">
+                    <img src="https://avatars.githubusercontent.com/u/125357872?v=4" width="150px;"
+                         alt="Nancy Mahmoud"/>
+                    <br/>
+                    <sub><b>Nancy Mahmoud</b></sub>
+                </a>
+            </td>
+            </td>
+            <td align="center">
+                <a href="https://github.com/mohamedddyasserr" target="_blank">
+                    <img src="https://avatars.githubusercontent.com/u/126451832?v=4" width="150px;"
+                         alt="Mohamed Yasser"/>
+                    <br/>
+                    <sub><b>Mohamed Yasser</b></sub>
+                </a>
+            </td>
+        </tr>
+    </table>
 </div>
+
 
 ---
 *LifeStream - Protecting Lives through Technology.*
