@@ -1,8 +1,5 @@
 ![Application Overview](https://github.com/user-attachments/assets/eb1e40a7-ed4f-4ad9-9b31-8aa658e2ed8d)
 
-# Personal Safety & Health Monitoring Platform
-
-
 ## Overview
 
 LifeStream is a comprehensive mobile application and hardware ecosystem designed to monitor user health in real-time and provide immediate safety mechanisms in emergency situations. By integrating with a custom ESP32-based wearable device, the system continuously tracks heart rate variability and synchronizes this data with a cloud backend. The mobile application serves as the command center, offering real-time visualization of health metrics, live location tracking, and an automated SOS alerting system that notifies trusted contacts with critical data (Location + Heart Rate) when triggered.
