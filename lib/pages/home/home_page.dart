@@ -9,7 +9,7 @@ import 'dart:math';
 // Import the new Pulse Provider
 import 'package:life_stream/providers/pulse_provider.dart';
 import 'package:life_stream/providers/notifications_provider.dart';
-import 'package:life_stream/services/heart_rate_simulator.dart';
+// import 'package:life_stream/services/heart_rate_simulator.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -33,9 +33,9 @@ class _HomePageState extends ConsumerState<HomePage>
   void initState() {
     super.initState();
     // Start Heart Rate Simulation
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(heartRateSimulatorProvider).startSimulation();
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   ref.read(heartRateSimulatorProvider).startSimulation();
+    // });
   }
 
   @override

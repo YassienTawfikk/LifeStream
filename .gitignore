@@ -65,7 +65,6 @@ macos/RunnerTests/
 macos/build/
 macos/Pods/
 
-
 # Linux
 linux/flutter/generated_plugins.cmake
 linux/build/
@@ -95,3 +94,6 @@ ios/Flutter/Secrets.xcconfig
 
 # Environment Variables
 .env
+
+# Arduino
+arduino/**/secrets.h
