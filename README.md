@@ -1,197 +1,204 @@
-# 🚀 LifeStream - Personal Safety & Health Monitoring Platform
+# LifeStream - Personal Safety & Health Monitoring Platform
 
-**LifeStream** is a cutting-edge mobile application designed for real-time personal safety and health monitoring. It integrates smart wearable data (heart rate) with location services to provide SOS alerts, real-time tracking, and automated emergency responses.
+![Application Overview Placeholder](assets/images/app_overview_placeholder.png)
 
----
+## Overview
 
-## ✨ Key Features
+LifeStream is a comprehensive mobile application and hardware ecosystem designed to monitor user health in real-time and provide immediate safety mechanisms in emergency situations. By integrating with a custom ESP32-based wearable device, the system continuously tracks heart rate variability and synchronizes this data with a cloud backend. The mobile application serves as the command center, offering real-time visualization of health metrics, live location tracking, and an automated SOS alerting system that notifies trusted contacts with critical data (Location + Heart Rate) when triggered.
 
-* **❤️ Real-time Heart Rate Monitoring**: Streams BPM data from wearable devices.
-* **🆘 SOS Emergency System**: One-tap SOS activation that alerts trusted contacts.
-* **📍 Live Location Tracking**: Real-time map shared with emergency contacts during an SOS.
-* **👥 Contact Management**: Add and manage trusted contacts and friends.
-* **🔔 Smart Notifications**: Alerts for friend requests, SOS triggers, and health anomalies.
-* **📱 Modern UI**: Built with Material 3 design principles for a smooth, intuitive experience.
+This project utilizes a modern technology stack including Flutter for the cross-platform mobile interface, Firebase for real-time data synchronization and authentication, and OpenStreetMap for privacy-focused location services.
 
----
+## Key Features
 
-## 🛠️ Technology Stack
+### Health Monitoring
 
-* **Framework**: [Flutter](https://flutter.dev/) (v3.10.1+)
-* **Language**: Dart (v3.0.0+)
-* **State Management**: [Riverpod](https://riverpod.dev/) (v2.0+)
-* **Navigation**: [GoRouter](https://pub.dev/packages/go_router)
-* **Backend & Cloud**:
-  * **Firebase Auth**: Secure user authentication.
-  * **Firebase Realtime Database**: Low-latency data syncing (Heart Rate, Location).
-  * **Firebase Storage**: Profile picture and asset storage.
-* **Maps**: Google Maps SDK (Android & iOS).
+* **Real-time Heart Rate Streaming**: Connects to a custom ESP32 wearable device to receive and display Pulse/BPM data with low latency using Firebase Realtime Database.
+* **Live ECG-Style Visualization**: The application renders incoming heart rate data as a continuous, dynamic waveform, providing users with immediate visual feedback on their heart rhythm.
+* **Anomaly Detection**: Monitors heart rate thresholds and can trigger local alerts if the BPM falls outside safe ranges (configurable).
 
----
+### Safety & Emergency Response (SOS)
 
-## 🔐 Data Security & Encryption
+* **One-Tap SOS Activation**: A prominent emergency button is accessible from the main dashboard, designed for quick activation in distress situations.
+* **Context-Aware Alerts**: When SOS is triggered, the system automatically compiles a comprehensive alert package containing:
+  * **Precise Location**: Current Latitude and Longitude.
+  * **Physiological State**: The user's current Heart Rate (BPM) at the time of the alert.
+* **Emergency Contact Notification**: Trusted contacts receive instant notifications. Tapping the notification automatically copies the distress coordinates to the clipboard for quick sharing with emergency services or navigation.
+* **Live Tracking Mode**: Activating SOS enables a real-time location stream, allowing emergency contacts to track the user's movement on an interactive map.
 
-The app implements **AES-256 Encryption** to secure sensitive user data stored locally on the device.
+### Connectivity & Social
 
-### 🛡️ Implementation Details
+* **Friend & Contact Management**: Users can search for and add friends via email. The system handles friend requests with a secure accept/reject workflow.
+* **Profile Synchronization**: User profiles, including profile pictures, are synchronized in real-time across devices using Firebase Storage and Realtime Database. Updating a profile picture instantly reflects on friends' devices.
+* **Status Indicators**: View the online/offline status and safety state of connected friends.
 
-* **Algorithm**: AES with a 256-bit key.
+### Security & Privacy
 
-* **Library**: `encrypt` package.
-* **Storage**: Encrypted data is stored in `SharedPreferences`.
+* **Local Data Encryption**: Sensitive user data stored on the device (authentication tokens, cached profile information) is protected using AES-256 encryption.
+* **Secure Authentication**: powered by Firebase Authentication, supporting email/password login with secure session management.
 
-### 🔒 Encrypted Data Points
+## System Architecture
 
-1. **Auth Token**: The session token used for API/Firebase authentication.
-2. **User Profile**: cached user details (Name, Email, ID).
+### Mobile Application (Flutter)
 
-> [!NOTE]
-> **Educational/Starter Project Note**:
-> For this starter version, the encryption key is **hardcoded** in the source code (`lib/services/storage_service.dart`). In a production environment, you should use the device's secure hardware (iOS Keychain / Android Keystore) via packages like `flutter_secure_storage` to store the encryption key.
+* **Architecture**: Feature-first, clean architecture using Riverpod for reliable state management.
+* **Navigation**: GoRouter for deep linking and stack management.
+* **Maps**: Integrated OpenStreetMap implementation for rendering live location data without requiring proprietary API keys.
 
----
+### Hardware (Wearable Prototype)
 
-## 📂 Project Structure
+* **Controller**: ESP32 / ESP8266 Microcontroller with WiFi capabilities.
+* **Sensors**: Analog Pulse Sensor (reading PPG data).
+* **Communication**: Direct WiFi connection to Firebase Realtime Database for pushing processed BPM values.
 
-This project follows a feature-first and modular architecture to ensure scalability.
+## Installation & Setup Guide
 
-```bash
-lib/
-├── main.dart               # 🏁 Application Entry Point
-├── app.dart               # 📱 Root Widget & Config
-├── firebase_options.dart  # ⚙️ Firebase Configuration (Auto-generated)
-├── constants/             # 🎨 App Colors, Strings, and Dimensions
-├── models/                # 📦 Data Models
-│   ├── user.dart          # User Profile Data
-│   ├── notification.dart  # Notification Structure
-│   ├── emergency_contact.dart # Contact Info
-│   └── ...
-├── pages/                 # 🖼️ UI Screens
-│   ├── auth/              # Login, Signup, Forgot Password
-│   ├── home/              # Main Dashboard
-│   ├── map/               # Live Location Map
-│   ├── sos/               # SOS Activation Screen
-│   ├── profile/           # User Settings & Profile
-│   └── ...
-├── providers/             # ⚡ State Management (Riverpod)
-│   ├── auth_provider.dart      # User Session State
-│   ├── location_provider.dart  # GPS Location State
-│   ├── pulse_provider.dart    # Heart Rate Data Stream
-│   └── ...
-├── services/              # 🔌 External Services & APIs
-│   ├── api_service.dart
-│   ├── storage_service.dart
-│   └── heart_rate_simulator.dart # Simulates BLE device data
-├── widgets/               # 🧩 Reusable UI Components
-└── utils/                 # 🛠️ Helper Functions
-```
+### Part 1: Mobile Application Setup
 
----
+**Prerequisites**
 
-## 🚀 Getting Started
+* Flutter SDK (3.10.1 or higher)
+* Android Studio / VS Code with Flutter extensions
+* Git
 
-Follow these instructions to set up the project on your local machine.
+**Steps**
 
-### 1️⃣ Prerequisites
-
-Before you begin, ensure you have the following installed:
-
-* **Flutter SDK**: [Install here](https://docs.flutter.dev/get-started/install)
-* **Git**: [Install here](https://git-scm.com/downloads)
-* **VS Code** or **Android Studio**: Recommended IDEs.
-* **Firebase Account**: Required for backend services.
-
-### 2️⃣ Installation & Setup
-
-**Step 1: Clone the Repository**
-Open your terminal and run:
-
-```bash
-git clone https://github.com/YassienTawfikk/LifeStream.git
-cd LifeStream
-```
-
-**Step 2: Install Dependencies**
-Download all required Flutter packages:
-
-```bash
-flutter pub get
-```
-
-### 3️⃣ Configuration (Critical Steps)
-
-The app relies on Firebase for backend services. You need to configure it manually as the configuration files are secrets and not tracked in Git.
-
-#### 🗺️ Map Configuration
-
-**Good news!** This project uses **OpenStreetMap**, so **no API Key is required** for the map to work. You can skip any Google Maps setup.
-
-#### 🔥 Firebase Setup
-
-**Option A: Using CLI (Recommended)**
-If you have the FlutterFire CLI installed, simply run:
-
-```bash
-flutterfire configure
-```
-
-Follow the prompts to select your project and platforms. This will automatically generate `lib/firebase_options.dart` and update native files.
-
-**Option B: Manual Setup**
-Manual setup is required for both Android and iOS.
-
-1. **Android**: Download `google-services.json` from Firebase Console -> Project Settings -> Android App. Place it in:
-    `android/app/google-services.json`
-2. **iOS**: Download `GoogleService-Info.plist` from Firebase Console -> Project Settings -> iOS App. Place it in:
-    `ios/Runner/GoogleService-Info.plist`
-
----
-
-## ▶️ How to Run
-
-### 🤖 Run on Android Emulator/Device
-
-1. Launch your Android Emulator or connect a physical device (ensure USB Debugging is ON).
-2. Run the command:
+1. **Clone the Repository**
 
     ```bash
-    flutter run
+    git clone https://github.com/YassienTawfikk/LifeStream.git
+    cd LifeStream
     ```
 
-### 🍎 Run on iOS Simulator/Device (Mac Only)
-
-1. Navigate to the iOS folder to install native pods:
+2. **Install Dependencies**
 
     ```bash
-    cd ios
-    pod install
-    cd ..
+    flutter pub get
     ```
 
-2. Launch an iOS Simulator.
-3. Run the command:
+3. **Firebase Configuration**
+    * Create a project in the Firebase Console.
+    * **Android**: Download `google-services.json` and place it in `android/app/`.
+    * **iOS**: Download `GoogleService-Info.plist` and place it in `ios/Runner/`.
+    * **Services**: Enable Authentication (Email/Password), Realtime Database (Rules: ensure read/write access for auth users), and Storage.
 
-    ```bash
-    flutter run
-    ```
+4. **Run the Application**
+    * **Android (Emulator/Physical)**:
+
+        ```bash
+        flutter run
+        ```
+
+    * **iOS (Simulator/Physical - Mac only)**:
+
+        ```bash
+        cd ios
+        pod install
+        cd ..
+        flutter run
+        ```
+
+### Part 2: Wearable Hardware Setup
+
+**Prerequisites**
+
+* Arduino IDE
+* ESP32 or ESP8266 Board Support Package installed in Arduino IDE
+* **Libraries**:
+  * `Firebase ESP Client` by Mobizt
+  * `WiFi` (Built-in)
+
+**Steps**
+
+1. **Hardware Wiring**
+    * **Signal Output** of Heart Rate Sensor -> **Pin 14** (or analog pin A0 on ESP8266, check code definition).
+    * **VCC** -> 3.3V or 5V (depending on sensor specs).
+    * **GND** -> GND.
+
+2. **Firmware Configuration**
+    * Open `arduino/LifeStream_BPM_Sender/LifeStream_BPM_Sender.ino`.
+    * Update the following constants with your specific configuration:
+
+        ```cpp
+        // WiFi Credentials
+        #define WIFI_SSID "YOUR_WIFI_NAME"
+        #define WIFI_PASSWORD "YOUR_WIFI_PASSWORD"
+
+        // Firebase Credentials
+        #define API_KEY "YOUR_FIREBASE_WEB_API_KEY"
+        #define DATABASE_URL "YOUR_FIREBASE_DATABASE_URL"
+
+        // User Mapping (The user who owns this device)
+        #define USER_EMAIL "user@example.com"
+        #define USER_PASSWORD "user_password"
+        ```
+
+3. **Upload**
+    * Connect your ESP32/ESP8266 via USB.
+    * Select the correct Board and Port in Arduino IDE.
+    * Click **Upload**.
+    * Open **Serial Monitor** (115200 baud) to verify connection and BPM readings.
+
+## Usage Guide
+
+1. **Registration**: Open the mobile app and create a new account.
+2. **Hardware Connection**: Power on the wearable device. Ensure it is connected to WiFi (LED indicator or Serial output).
+3. **Visualization**: Navigate to the Home Dashboard. The heart rate graph should begin tracking automatically once the device filters a stable pulse.
+4. **Testing SOS**: Long-press or Tap the SOS button (depending on settings) to enter Emergency Mode. Check the 'Map' tab to see live tracking activation.
+5. **Adding Contacts**: Go to the Profile/Contacts section and search for another registered user email to send a friend request.
+
+## Contributors
+
+## Contributors
+
+<div>
+<table align="center">
+  <tr>
+        <td align="center">
+      <a href="https://github.com/YassienTawfikk" target="_blank">
+        <img src="https://avatars.githubusercontent.com/u/126521373?v=4" width="150px;" alt="Yassien Tawfik"/>
+        <br />
+        <sub><b>Yassien Tawfik</b></sub>
+      </a>
+    </td>
+      <td align="center">
+      <a href="https://github.com/Mazenmarwan023" target="_blank">
+        <img src="https://avatars.githubusercontent.com/u/127551364?v=4" width="150px;" alt="Mazen Marwan"/>
+        <br />
+        <sub><b>Mazen Marwan</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/madonna-mosaad" target="_blank">
+        <img src="https://avatars.githubusercontent.com/u/127048836?v=4" width="150px;" alt="Madonna Mosaad"/>
+        <br />
+        <sub><b>Madonna Mosaad</b></sub>
+      </a>
+    </td>
+        <td align="center">
+      <a href="https://github.com/nancymahmoud1" target="_blank">
+        <img src="https://avatars.githubusercontent.com/u/125357872?v=4" width="150px;" alt="Nancy Mahmoud"/>
+        <br />
+        <sub><b>Nancy Mahmoud</b></sub>
+      </a>
+    </td>
+    </td>
+        <td align="center">
+      <a href="https://github.com/mohamedddyasserr" target="_blank">
+        <img src="https://avatars.githubusercontent.com/u/126451832?v=4" width="150px;" alt="Mohamed Yasser"/>
+        <br />
+        <sub><b>Mohamed Yasser</b></sub>
+      </a>
+    </td>
+      <td align="center">
+      <a href="https://github.com/Seiftaha" target="_blank">
+        <img src="https://avatars.githubusercontent.com/u/127027353?v=4" width="150px;" alt="Seif Taha"/>
+        <br />
+        <sub><b>Seif Taha</b></sub>
+      </a>
+    </td>
+  </tr>
+</table>
+</div>
 
 ---
-
-## ❓ Troubleshooting
-
-### "SDK location not found" (Android)
-
-* **Cause**: The `local.properties` file is missing or points to the wrong Android SDK path.
-* **Fix**: Open the project in Android Studio (specifically the `android` folder) and let it sync. It will automatically create `local.properties` with the correct `sdk.dir`.
-
-### "CocoaPods not installed" or Pod errors (iOS)
-
-* **Cause**: Missing CocoaPods dependency manager.
-* **Fix**:
-
-    ```bash
-    sudo gem install cocoapods
-    cd ios
-    pod install
-    pod update
-    ```
+*LifeStream - Protecting Lives through Technology.*
