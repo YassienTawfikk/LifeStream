@@ -11,13 +11,15 @@ class AppColors {
   static const Color lightError = Color(0xFFB3261E);
 
   // Dark Theme Colors
-  static const Color darkPrimary = Color(0xFFB4A7FF);
-  static const Color darkPrimaryContainer = Color(0xFF4F46E5);
-  static const Color darkSecondary = Color(0xFF48D1CC);
-  static const Color darkTertiary = Color(0xFFFF8BB0);
-  static const Color darkBackground = Color(0xFF121212);
-  static const Color darkSurface = Color(0xFF1E1E1E);
-  static const Color darkError = Color(0xFFF9DEDC);
+  static const Color darkPrimary = Color(0xFFB4A7FF); // M3 Purple 80
+  static const Color darkPrimaryContainer = Color(0xFF4F378B); // M3 Purple 30
+  static const Color darkSecondary = Color(0xFFCCC2DC); // M3 Purple/Gray 80
+  static const Color darkTertiary = Color(0xFFEFB8C8); // M3 Pink 80
+  static const Color darkBackground = Color(0xFF141218); // M3 Dark Background
+  static const Color darkSurface = Color(
+    0xFF2B2930,
+  ); // M3 Dark Surface (slightly lighter for elevation 1-2 feel)
+  static const Color darkError = Color(0xFFF2B8B5);
 
   // Neutral Colors
   static const Color textPrimary = Color(0xFF1F2937);

@@ -79,12 +79,18 @@ class StorageService {
   }
 
   // Theme Methods
-  Future<void> setThemeMode(String theme) async {
-    await _prefs.setString(AppConstants.themeKey, theme);
+  Future<void> setThemeMode(String theme, {String? userId}) async {
+    final key = userId != null
+        ? '${AppConstants.themeKey}_$userId'
+        : AppConstants.themeKey;
+    await _prefs.setString(key, theme);
   }
 
-  String? getThemeMode() {
-    return _prefs.getString(AppConstants.themeKey);
+  String? getThemeMode({String? userId}) {
+    final key = userId != null
+        ? '${AppConstants.themeKey}_$userId'
+        : AppConstants.themeKey;
+    return _prefs.getString(key);
   }
 
   // Logout (Clear All)

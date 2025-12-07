@@ -84,7 +84,7 @@ class _EcgChartState extends State<EcgChart>
       color: Colors.transparent, // Background handled by parent or painter
       child: ClipRect(
         child: CustomPaint(
-          painter: EcgPainter(_points, Theme.of(context).primaryColor),
+          painter: EcgPainter(_points, const Color(0xFF6466F1)),
         ),
       ),
     );

@@ -161,7 +161,7 @@ class _HomePageState extends ConsumerState<HomePage>
                       children: [
                         Icon(
                           Icons.monitor_heart_rounded,
-                          color: Theme.of(context).primaryColor,
+                          color: const Color(0xFF6466F1),
                         ),
                         const SizedBox(height: 8),
                         Text('Heart Rate', style: AppTextStyles.labelSmall),
@@ -192,7 +192,7 @@ class _HomePageState extends ConsumerState<HomePage>
                       children: [
                         Icon(
                           Icons.directions_run_rounded,
-                          color: AppColors.lightSecondary,
+                          color: const Color(0xFF6466F1),
                         ),
                         const SizedBox(height: 8),
                         Text('Motion Status', style: AppTextStyles.labelSmall),
@@ -212,15 +212,15 @@ class _HomePageState extends ConsumerState<HomePage>
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: Theme.of(
-                              context,
-                            ).primaryColor.withValues(alpha: 0.1),
+                            color: const Color(
+                              0xFF6466F1,
+                            ).withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
                             motionStatus,
                             style: AppTextStyles.labelMedium.copyWith(
-                              color: Theme.of(context).primaryColor,
+                              color: const Color(0xFF6466F1),
                             ),
                           ),
                         ),
@@ -247,7 +247,7 @@ class _HomePageState extends ConsumerState<HomePage>
                           Icon(
                             Icons.map_rounded,
                             size: 32,
-                            color: Theme.of(context).primaryColor,
+                            color: const Color(0xFF6466F1),
                           ),
                           const SizedBox(height: 8),
                           Text('Live Map', style: AppTextStyles.titleMedium),
@@ -267,7 +267,7 @@ class _HomePageState extends ConsumerState<HomePage>
                           Icon(
                             Icons.contact_phone_rounded,
                             size: 32,
-                            color: Theme.of(context).primaryColor,
+                            color: const Color(0xFF6466F1),
                           ),
                           const SizedBox(height: 8),
                           Text('Friends', style: AppTextStyles.titleMedium),

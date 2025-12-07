@@ -82,7 +82,8 @@ class _SplashPageState extends ConsumerState<SplashPage>
       }
     });
 
-    final primary = Theme.of(context).primaryColor;
+    // Use fixed primary color for splash to ensure consistency
+    const primary = Color(0xFF6366F1); // AppColors.lightPrimary
 
     return Scaffold(
       body: Stack(
