@@ -1,6 +1,7 @@
-# LifeStream - Personal Safety & Health Monitoring Platform
+![Application Overview](https://github.com/user-attachments/assets/eb1e40a7-ed4f-4ad9-9b31-8aa658e2ed8d)
 
-![Application Overview Placeholder](assets/images/app_overview_placeholder.png)
+# Personal Safety & Health Monitoring Platform
+
 
 ## Overview
 
