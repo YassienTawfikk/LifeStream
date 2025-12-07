@@ -7,6 +7,7 @@ import 'package:life_stream/constants/index.dart';
 
 import 'package:life_stream/providers/theme_provider.dart';
 import 'package:life_stream/widgets/index.dart';
+import 'package:life_stream/utils/snackbar_utils.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
@@ -153,10 +154,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           icon: Icons.privacy_tip,
                           title: 'Privacy Settings',
                           onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Feature coming soon'),
-                              ),
+                            SnackbarUtils.showInfoSnackBar(
+                              context,
+                              'Feature coming soon',
                             );
                           },
                         ),
@@ -189,10 +189,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           icon: Icons.description,
                           title: 'Terms & Conditions',
                           onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Feature coming soon'),
-                              ),
+                            SnackbarUtils.showInfoSnackBar(
+                              context,
+                              'Feature coming soon',
                             );
                           },
                         ),
@@ -201,10 +200,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           icon: Icons.privacy_tip_outlined,
                           title: 'Privacy Policy',
                           onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Feature coming soon'),
-                              ),
+                            SnackbarUtils.showInfoSnackBar(
+                              context,
+                              'Feature coming soon',
                             );
                           },
                         ),

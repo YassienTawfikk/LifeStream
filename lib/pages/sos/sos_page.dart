@@ -8,7 +8,8 @@ import 'package:life_stream/constants/index.dart';
 import 'package:life_stream/providers/auth_provider.dart';
 import 'package:life_stream/providers/friends_provider.dart';
 import 'package:life_stream/providers/pulse_provider.dart';
-import 'package:life_stream/widgets/index.dart';
+import 'package:life_stream/utils/error_handler.dart';
+import 'package:life_stream/utils/snackbar_utils.dart';
 
 class SosPage extends ConsumerStatefulWidget {
   const SosPage({super.key});
@@ -72,53 +73,20 @@ class _SosPageState extends ConsumerState<SosPage> {
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('SOS Sent! Notified ${friends.length} friends.'),
-            backgroundColor: AppColors.lightError,
-            duration: const Duration(seconds: 5),
-          ),
+        SnackbarUtils.showSuccessSnackBar(
+          context,
+          'SOS Sent! Notified ${friends.length} friends.',
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to send SOS: $e'),
-            backgroundColor: AppColors.textPrimary,
-          ),
-        );
+        final errorMessage = ErrorHandler.getReadableErrorMessage(e);
+        SnackbarUtils.showErrorSnackBar(context, errorMessage);
       }
     } finally {
       if (mounted) {
         setState(() => isSending = false);
       }
-    }
-  }
-
-  Future<void> _cancelSos() async {
-    setState(() => isAlertTriggered = false);
-
-    try {
-      final user = ref.read(authProvider).user;
-      final userId = user?.id ?? 'unknown_user';
-
-      // Update own status to RESOLVED
-      await FirebaseDatabase.instance.ref('sos_alerts/$userId').update({
-        'status': 'RESOLVED',
-        'resolved_at': ServerValue.timestamp,
-      });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('SOS Alert Canceled.'),
-            backgroundColor: AppColors.success,
-          ),
-        );
-      }
-    } catch (e) {
-      debugPrint('Error canceling SOS: $e');
     }
   }
 
@@ -195,11 +163,13 @@ class _SosPageState extends ConsumerState<SosPage> {
               ),
               const SizedBox(height: 40),
               if (isAlertTriggered)
-                PrimaryButton(
-                  label: 'Cancel Alert',
-                  onPressed: _cancelSos,
-                  isLoading: false,
-                  icon: Icons.close,
+                Text(
+                  'Alert sent. Your location and vitals have been shared with your Emergency Friends.',
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.lightError,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
                 )
               else
                 Text(

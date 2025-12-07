@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:life_stream/constants/index.dart';
 import 'package:life_stream/widgets/index.dart';
+import 'package:life_stream/utils/error_handler.dart';
+import 'package:life_stream/utils/snackbar_utils.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -49,12 +51,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       setState(() => _emailSent = true);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        final errorMessage = ErrorHandler.getReadableErrorMessage(e);
+        SnackbarUtils.showErrorSnackBar(context, errorMessage);
       }
     } finally {
       if (mounted) {
@@ -75,9 +73,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
-          child: _emailSent
-              ? _buildSuccessScreen()
-              : _buildFormScreen(),
+          child: _emailSent ? _buildSuccessScreen() : _buildFormScreen(),
         ),
       ),
     );
@@ -89,10 +85,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Reset Password',
-            style: AppTextStyles.displaySmall,
-          ),
+          Text('Reset Password', style: AppTextStyles.displaySmall),
           const SizedBox(height: 8),
           Text(
             'Enter your email to receive reset instructions',
@@ -132,17 +125,10 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             color: Colors.green.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
-          child: const Icon(
-            Icons.check_circle,
-            size: 60,
-            color: Colors.green,
-          ),
+          child: const Icon(Icons.check_circle, size: 60, color: Colors.green),
         ),
         const SizedBox(height: 24),
-        Text(
-          'Email Sent!',
-          style: AppTextStyles.displaySmall,
-        ),
+        Text('Email Sent!', style: AppTextStyles.displaySmall),
         const SizedBox(height: 8),
         Text(
           'Check your email for password reset instructions',
@@ -152,10 +138,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 48),
-        PrimaryButton(
-          label: 'Back to Login',
-          onPressed: () => context.pop(),
-        ),
+        PrimaryButton(label: 'Back to Login', onPressed: () => context.pop()),
       ],
     );
   }

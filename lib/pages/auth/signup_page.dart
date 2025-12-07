@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:life_stream/constants/index.dart';
 import 'package:life_stream/providers/auth_provider.dart';
 import 'package:life_stream/widgets/index.dart';
+import 'package:life_stream/utils/error_handler.dart';
+import 'package:life_stream/utils/snackbar_utils.dart';
 
 class SignupPage extends ConsumerStatefulWidget {
   const SignupPage({super.key});
@@ -81,7 +83,9 @@ class _SignupPageState extends ConsumerState<SignupPage> {
     setState(() => _isLoading = true);
 
     try {
-      await ref.read(authProvider.notifier).signup(
+      await ref
+          .read(authProvider.notifier)
+          .signup(
             _nameController.text,
             _emailController.text,
             _passwordController.text,
@@ -92,12 +96,8 @@ class _SignupPageState extends ConsumerState<SignupPage> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Signup failed: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        final errorMessage = ErrorHandler.getReadableErrorMessage(e);
+        SnackbarUtils.showErrorSnackBar(context, errorMessage);
       }
     } finally {
       if (mounted) {
@@ -123,10 +123,7 @@ class _SignupPageState extends ConsumerState<SignupPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Create Account',
-                  style: AppTextStyles.displaySmall,
-                ),
+                Text('Create Account', style: AppTextStyles.displaySmall),
                 const SizedBox(height: 8),
                 Text(
                   'Join us today',

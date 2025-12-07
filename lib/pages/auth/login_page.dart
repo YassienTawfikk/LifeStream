@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:life_stream/constants/index.dart';
 import 'package:life_stream/providers/auth_provider.dart';
 import 'package:life_stream/widgets/index.dart';
+import 'package:life_stream/utils/error_handler.dart';
+import 'package:life_stream/utils/snackbar_utils.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -58,22 +60,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     setState(() => _isLoading = true);
 
     try {
-      await ref.read(authProvider.notifier).login(
-            _emailController.text,
-            _passwordController.text,
-          );
+      await ref
+          .read(authProvider.notifier)
+          .login(_emailController.text, _passwordController.text);
 
       if (mounted) {
         context.go('/home');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Login failed: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        final errorMessage = ErrorHandler.getReadableErrorMessage(e);
+        SnackbarUtils.showErrorSnackBar(context, errorMessage);
       }
     } finally {
       if (mounted) {
@@ -94,10 +91,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 24),
-                Text(
-                  'Welcome Back',
-                  style: AppTextStyles.displaySmall,
-                ),
+                Text('Welcome Back', style: AppTextStyles.displaySmall),
                 const SizedBox(height: 8),
                 Text(
                   'Sign in to your account',

@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:life_stream/providers/auth_provider.dart';
 import 'package:life_stream/widgets/buttons.dart';
 import 'package:life_stream/widgets/text_field.dart';
+import 'package:life_stream/utils/error_handler.dart';
+import 'package:life_stream/utils/snackbar_utils.dart';
 
 class ChangePasswordPage extends ConsumerStatefulWidget {
   const ChangePasswordPage({super.key});
@@ -21,9 +23,7 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
   Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
       if (_newPasswordController.text != _confirmPasswordController.text) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('New passwords do not match')),
-        );
+        SnackbarUtils.showErrorSnackBar(context, 'New passwords do not match');
         return;
       }
 
@@ -35,16 +35,16 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
               _newPasswordController.text,
             );
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Password changed successfully')),
+          SnackbarUtils.showSuccessSnackBar(
+            context,
+            'Password changed successfully',
           );
           context.pop();
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
+          final errorMessage = ErrorHandler.getReadableErrorMessage(e);
+          SnackbarUtils.showErrorSnackBar(context, errorMessage);
         }
       }
     }

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:life_stream/constants/index.dart';
 import 'package:life_stream/models/index.dart';
 import 'package:life_stream/widgets/index.dart';
+import 'package:life_stream/utils/snackbar_utils.dart';
 
 class DetailPage extends StatelessWidget {
   final String itemId;
@@ -111,7 +112,9 @@ class DetailPage extends StatelessWidget {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                          color: Theme.of(
+                            context,
+                          ).primaryColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -139,10 +142,7 @@ class DetailPage extends StatelessWidget {
                   const SizedBox(height: 24),
 
                   // Description
-                  Text(
-                    'Description',
-                    style: AppTextStyles.headlineSmall,
-                  ),
+                  Text('Description', style: AppTextStyles.headlineSmall),
                   const SizedBox(height: 8),
                   Text(
                     item.description,
@@ -165,10 +165,7 @@ class DetailPage extends StatelessWidget {
                                 color: Theme.of(context).primaryColor,
                               ),
                               const SizedBox(height: 8),
-                              Text(
-                                'Posted',
-                                style: AppTextStyles.labelSmall,
-                              ),
+                              Text('Posted', style: AppTextStyles.labelSmall),
                               const SizedBox(height: 4),
                               Text(
                                 '2 days ago',
@@ -190,10 +187,7 @@ class DetailPage extends StatelessWidget {
                                 color: Theme.of(context).primaryColor,
                               ),
                               const SizedBox(height: 8),
-                              Text(
-                                'Likes',
-                                style: AppTextStyles.labelSmall,
-                              ),
+                              Text('Likes', style: AppTextStyles.labelSmall),
                               const SizedBox(height: 4),
                               Text(
                                 '324',
@@ -213,9 +207,7 @@ class DetailPage extends StatelessWidget {
                   PrimaryButton(
                     label: 'Like This Item',
                     onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Liked!')),
-                      );
+                      SnackbarUtils.showSuccessSnackBar(context, 'Liked!');
                     },
                     icon: Icons.favorite,
                   ),

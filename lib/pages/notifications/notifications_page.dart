@@ -7,6 +7,7 @@ import 'package:life_stream/models/friend_request.dart' as models;
 import 'package:life_stream/providers/notifications_provider.dart';
 import 'package:life_stream/providers/friends_provider.dart';
 import 'package:life_stream/widgets/index.dart';
+import 'package:life_stream/utils/snackbar_utils.dart';
 
 class NotificationsPage extends ConsumerStatefulWidget {
   const NotificationsPage({super.key});
@@ -74,9 +75,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
             tooltip: 'Mark all as read',
             onPressed: () {
               ref.read(notificationsProvider.notifier).markAllAsRead();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Marked all as read')),
-              );
+              SnackbarUtils.showSuccessSnackBar(context, 'Marked all as read');
             },
           ),
         ],
@@ -113,11 +112,9 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                       }
 
                       if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Coordinates copied: $coords'),
-                            behavior: SnackBarBehavior.floating,
-                          ),
+                        SnackbarUtils.showSuccessSnackBar(
+                          context,
+                          'Coordinates copied: $coords',
                         );
                       }
                     }
@@ -272,14 +269,9 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                                           .read(friendsProvider.notifier)
                                           .rejectRequest(notification.id);
                                       if (context.mounted) {
-                                        ScaffoldMessenger.of(
+                                        SnackbarUtils.showInfoSnackBar(
                                           context,
-                                        ).showSnackBar(
-                                          const SnackBar(
-                                            content: Text(
-                                              'Friend Request Declined',
-                                            ),
-                                          ),
+                                          'Friend Request Declined',
                                         );
                                       }
                                     },

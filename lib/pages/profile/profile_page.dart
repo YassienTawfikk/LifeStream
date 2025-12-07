@@ -7,6 +7,8 @@ import 'package:life_stream/constants/index.dart';
 import 'package:life_stream/providers/auth_provider.dart';
 import 'package:life_stream/providers/friends_provider.dart';
 import 'package:life_stream/widgets/index.dart';
+import 'package:life_stream/utils/error_handler.dart';
+import 'package:life_stream/utils/snackbar_utils.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key});
@@ -50,15 +52,15 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           .updateProfileImage(File(image.path));
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile photo updated successfully')),
+        SnackbarUtils.showSuccessSnackBar(
+          context,
+          'Profile photo updated successfully',
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-        );
+        final errorMessage = ErrorHandler.getReadableErrorMessage(e);
+        SnackbarUtils.showErrorSnackBar(context, errorMessage);
       }
     } finally {
       if (mounted) {
