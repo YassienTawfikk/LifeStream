@@ -13,12 +13,14 @@ class AuthState {
   final User? user;
   final String? error;
   final bool isLoading;
+  final bool isInitialized; // NEW: Track initialization
 
   AuthState({
     this.isAuthenticated = false,
     this.user,
     this.error,
     this.isLoading = false,
+    this.isInitialized = false, // Default to false
   });
 
   AuthState copyWith({
@@ -26,12 +28,14 @@ class AuthState {
     User? user,
     String? error,
     bool? isLoading,
+    bool? isInitialized,
   }) {
     return AuthState(
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
       user: user ?? this.user,
       error: error ?? this.error,
       isLoading: isLoading ?? this.isLoading,
+      isInitialized: isInitialized ?? this.isInitialized,
     );
   }
 }
@@ -49,10 +53,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
     _auth.authStateChanges().listen((firebase_auth.User? firebaseUser) {
       if (firebaseUser != null) {
         final user = _mapFirebaseUser(firebaseUser);
-        state = AuthState(isAuthenticated: true, user: user);
-        // Optionally sync with local storage if needed, but Firebase persists auth state.
+        state = AuthState(
+          isAuthenticated: true,
+          user: user,
+          isInitialized: true, // Mark as initialized
+        );
       } else {
-        state = AuthState(isAuthenticated: false);
+        state = AuthState(
+          isAuthenticated: false,
+          isInitialized: true, // Mark as initialized even if not logged in
+        );
       }
     });
   }

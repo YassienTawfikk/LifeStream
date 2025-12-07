@@ -30,23 +30,41 @@ class _SplashPageState extends ConsumerState<SplashPage>
       duration: const Duration(seconds: 2),
     );
 
-    _fade = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    _fade = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
-    _scale = Tween<double>(begin: 0.75, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
-    );
+    _scale = Tween<double>(
+      begin: 0.75,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
 
     _controller.forward();
   }
 
+  bool _isTimerDone = false;
+  bool _navigated = false;
+
   void _navigate() async {
+    // 1. Wait for minimum splash time
     await Future.delayed(const Duration(seconds: 3));
     if (!mounted) return;
 
-    final auth = ref.read(authProvider);
-    context.go(auth.isAuthenticated ? '/home' : '/login');
+    _isTimerDone = true;
+    _checkAndNavigate();
+  }
+
+  void _checkAndNavigate() {
+    if (_navigated) return;
+
+    final authState = ref.read(authProvider);
+
+    // Only navigate if BOTH timer is done AND auth is initialized
+    if (_isTimerDone && authState.isInitialized) {
+      _navigated = true;
+      context.go(authState.isAuthenticated ? '/home' : '/login');
+    }
   }
 
   @override
@@ -57,6 +75,13 @@ class _SplashPageState extends ConsumerState<SplashPage>
 
   @override
   Widget build(BuildContext context) {
+    // Listen to auth state changes to trigger navigation once initialized
+    ref.listen(authProvider, (previous, next) {
+      if (next.isInitialized && _isTimerDone) {
+        _checkAndNavigate();
+      }
+    });
+
     final primary = Theme.of(context).primaryColor;
 
     return Scaffold(
@@ -99,13 +124,10 @@ class _SplashPageState extends ConsumerState<SplashPage>
                             color: primary.withOpacity(0.5),
                             blurRadius: 35,
                             spreadRadius: 3,
-                          )
+                          ),
                         ],
                         gradient: LinearGradient(
-                          colors: [
-                            primary,
-                            primary.withOpacity(0.7),
-                          ],
+                          colors: [primary, primary.withOpacity(0.7)],
                         ),
                       ),
                       child: const Icon(
