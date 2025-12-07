@@ -1,7 +1,17 @@
 #include <Firebase_ESP_Client.h>
 #include <WiFi.h>
 
-#include "secrets.h"
+// WiFi
+#define WIFI_SSID "Yassien"
+#define WIFI_PASSWORD "Yyyyy124"
+
+// Firebase
+#define API_KEY "AIzaSyCQhwEA6Ral7EsLh4Z1ZQODJqciy1z4bX4"
+#define DATABASE_URL "https://braceletlifesaver-default-rtdb.firebaseio.com/"
+
+// User Credentials
+#define USER_EMAIL "yassien.tawfik@gmail.com"
+#define USER_PASSWORD "12345678"
 
 // Provide the token generation process info.
 #include <addons/TokenHelper.h>
