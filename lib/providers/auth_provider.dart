@@ -1,5 +1,5 @@
-import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:life_stream/models/user.dart';
 import 'package:life_stream/providers/storage_provider.dart';
 import 'dart:convert';
@@ -58,6 +58,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
           user: user,
           isInitialized: true, // Mark as initialized
         );
+        // Fetch full profile from Realtime Database (bio, profilePictureUrl)
+        _fetchUserProfile(user.id);
       } else {
         state = AuthState(
           isAuthenticated: false,
@@ -191,20 +193,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  Future<void> updateProfileImage(File imageFile) async {
+  Future<void> updateProfileImage(XFile imageFile) async {
     try {
       final user = _auth.currentUser;
       if (user == null) throw Exception('User not found');
-
-      if (!await imageFile.exists()) {
-        throw Exception('File does not exist at path: ${imageFile.path}');
-      }
 
       // 1. Read bytes and resize/compress (Simplistic approach)
       final bytes = await imageFile.readAsBytes();
       final base64Image = base64Encode(bytes);
 
-      // 2. Sync to Realtime Database (Restored)
+      // 2. Sync to Realtime Database
       // This allows friends to download and view the image.
       final dbRef = FirebaseDatabase.instance.ref('users/${user.uid}/profile');
       await dbRef.update({'profilePictureUrl': base64Image});
@@ -259,6 +257,34 @@ class AuthNotifier extends StateNotifier<AuthState> {
       'longitude': 0.0,
       'timestamp': ServerValue.timestamp,
     });
+  }
+
+  // Helper to fetch full profile info from Realtime Database
+  Future<void> _fetchUserProfile(String uid) async {
+    try {
+      final dbRef = FirebaseDatabase.instance.ref('users/$uid/profile');
+      final snapshot = await dbRef.get();
+
+      if (snapshot.exists && snapshot.value != null) {
+        final data = Map<String, dynamic>.from(snapshot.value as Map);
+        final currentUser = state.user;
+
+        if (currentUser != null) {
+          final updatedUser = currentUser.copyWith(
+            // Prefer DB value, fallback to Auth value (though Auth value is likely older/null)
+            bio: data['bio'] as String?,
+            profilePictureUrl:
+                data['profilePictureUrl'] as String? ??
+                currentUser.profilePictureUrl,
+            name: data['name'] as String? ?? currentUser.name,
+          );
+          state = state.copyWith(user: updatedUser);
+        }
+      }
+    } catch (e) {
+      // Sliently fail or log, as this is a background fetch
+      print('Error fetching user profile: $e');
+    }
   }
 }
 

@@ -38,6 +38,7 @@ class ErrorHandler {
 
     // Generic Fallback
     // Ideally log this locally or to a service for debugging
-    return 'An unexpected error occurred. Please try again.';
+    // FOR DEBUGGING: Return request status with error
+    return 'Error: $errorString';
   }
 }

@@ -41,15 +41,18 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
   Future<void> _pickImage() async {
     try {
-      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 256, // Aggressive reduction
+        maxHeight: 256,
+        imageQuality: 50, // High compression
+      );
       if (image == null) return;
 
       setState(() => _isSaving = true);
 
       // Use AuthProvider to update image
-      await ref
-          .read(authProvider.notifier)
-          .updateProfileImage(File(image.path));
+      await ref.read(authProvider.notifier).updateProfileImage(image);
 
       if (mounted) {
         SnackbarUtils.showSuccessSnackBar(

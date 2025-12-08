@@ -7,7 +7,7 @@ import 'package:life_stream/providers/storage_provider.dart';
 // NEW: Firebase Core import
 import 'package:firebase_core/firebase_core.dart';
 // FIX: Use the package path to correctly reference the generated file inside lib/
-import 'package:life_stream/firebase_options.dart'; 
+import 'package:life_stream/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,9 +30,5 @@ void main() async {
     debugPrint('Storage initialization error: $e');
   }
 
-  runApp(
-    const ProviderScope(
-      child: LifeStreamApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: LifeStreamApp()));
 }
