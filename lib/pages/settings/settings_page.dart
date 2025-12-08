@@ -269,7 +269,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       leading: Icon(icon),
       title: Text(title),
       trailing: isSelected
-          ? Icon(Icons.check_circle, color: Theme.of(context).primaryColor)
+          ? Icon(
+              Icons.check_circle,
+              color: Theme.of(context).colorScheme.primary,
+            )
           : null,
       onTap: onTap,
     );
@@ -300,7 +303,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       trailing: Switch(
         value: value,
         onChanged: onChanged,
-        activeThumbColor: Theme.of(context).primaryColor,
+        activeThumbColor: Theme.of(context).colorScheme.primary,
       ),
       onTap: () => onChanged(!value),
     );

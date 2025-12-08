@@ -197,9 +197,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       vertical: 10,
                     ),
                     decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).primaryColor.withValues(alpha: 0.1),
+                      color: Theme.of(context).colorScheme.primaryContainer,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -207,13 +205,17 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       children: [
                         Icon(
                           Icons.people,
-                          color: Theme.of(context).primaryColor,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onPrimaryContainer,
                         ),
                         const SizedBox(width: 8),
                         Text(
                           '${ref.watch(friendsProvider).friends.length} Friends',
                           style: AppTextStyles.titleMedium.copyWith(
-                            color: Theme.of(context).primaryColor,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onPrimaryContainer,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
