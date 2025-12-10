@@ -34,7 +34,7 @@ This project utilizes a modern technology stack including Flutter for the cross-
 * **Emergency Contact Notification**: Trusted contacts receive instant notifications. Tapping the notification automatically copies the distress coordinates to the clipboard for quick sharing with emergency services or navigation.
 * **Live Tracking Mode**: Activating SOS enables a real-time location stream, allowing emergency contacts to track the user's movement on an interactive map.
 
-![Live Location](https://github.com/user-attachments/assets/3c2e59af-7655-45bf-8860-6eb84d98a7ec)
+![Live Location](https://github.com/user-attachments/assets/ea253c1e-0901-4e7b-96ac-917bafd34ded)
 
 ---
 
