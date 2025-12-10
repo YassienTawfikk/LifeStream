@@ -283,7 +283,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       }
     } catch (e) {
       // Sliently fail or log, as this is a background fetch
-      print('Error fetching user profile: $e');
+      // print('Error fetching user profile: $e');
     }
   }
 }

@@ -95,9 +95,9 @@ class _SplashPageState extends ConsumerState<SplashPage>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  primary.withOpacity(0.9),
-                  primary.withOpacity(0.6),
-                  primary.withOpacity(0.3),
+                  primary.withValues(alpha: 0.9),
+                  primary.withValues(alpha: 0.6),
+                  primary.withValues(alpha: 0.3),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -122,13 +122,13 @@ class _SplashPageState extends ConsumerState<SplashPage>
                         borderRadius: BorderRadius.circular(32),
                         boxShadow: [
                           BoxShadow(
-                            color: primary.withOpacity(0.5),
+                            color: primary.withValues(alpha: 0.5),
                             blurRadius: 35,
                             spreadRadius: 3,
                           ),
                         ],
                         gradient: LinearGradient(
-                          colors: [primary, primary.withOpacity(0.7)],
+                          colors: [primary, primary.withValues(alpha: 0.7)],
                         ),
                       ),
                       child: const Icon(
@@ -155,9 +155,9 @@ class _SplashPageState extends ConsumerState<SplashPage>
                     ShaderMask(
                       shaderCallback: (bounds) => LinearGradient(
                         colors: [
-                          Colors.white.withOpacity(0.2),
+                          Colors.white.withValues(alpha: 0.2),
                           Colors.white,
-                          Colors.white.withOpacity(0.2),
+                          Colors.white.withValues(alpha: 0.2),
                         ],
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,

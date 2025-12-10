@@ -135,7 +135,7 @@ class EcgPainter extends CustomPainter {
 
       // Glow
       final glowPaint = Paint()
-        ..color = color.withOpacity(0.3)
+        ..color = color.withValues(alpha: 0.3)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5);
 
       canvas.drawCircle(

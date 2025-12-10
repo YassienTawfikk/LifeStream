@@ -15,13 +15,13 @@ class ApiService {
     );
 
     // Add interceptors for logging
-    _dio.interceptors.add(
-      LogInterceptor(
-        requestBody: true,
-        responseBody: true,
-        logPrint: (obj) => print(obj),
-      ),
-    );
+    // _dio.interceptors.add(
+    //   LogInterceptor(
+    //     requestBody: true,
+    //     responseBody: true,
+    //     logPrint: (obj) => print(obj),
+    //   ),
+    // );
   }
 
   // GET request
