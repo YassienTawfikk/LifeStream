@@ -1,3 +1,5 @@
+# LifeStream
+
 ![Application Overview](https://github.com/user-attachments/assets/eb1e40a7-ed4f-4ad9-9b31-8aa658e2ed8d)
 
 ## Overview
@@ -6,33 +8,54 @@ LifeStream is a comprehensive mobile application and hardware ecosystem designed
 
 This project utilizes a modern technology stack including Flutter for the cross-platform mobile interface, Firebase for real-time data synchronization and authentication, and OpenStreetMap for privacy-focused location services.
 
+---
+
 ## Key Features
 
 ### Health Monitoring
+
+![Main Dashboard](https://github.com/user-attachments/assets/2e1be7c4-67ae-4931-b3bf-c6aa8dbcb30e)
 
 * **Real-time Heart Rate Streaming**: Connects to a custom ESP32 wearable device to receive and display Pulse/BPM data with low latency using Firebase Realtime Database.
 * **Live ECG-Style Visualization**: The application renders incoming heart rate data as a continuous, dynamic waveform, providing users with immediate visual feedback on their heart rhythm.
 * **Anomaly Detection**: Monitors heart rate thresholds and can trigger local alerts if the BPM falls outside safe ranges (configurable).
 
+---
+
 ### Safety & Emergency Response (SOS)
+
+![SOS Page](https://github.com/user-attachments/assets/28a6bb58-1f09-41ba-9654-8ee5635e9e55)
 
 * **One-Tap SOS Activation**: A prominent emergency button is accessible from the main dashboard, designed for quick activation in distress situations.
 * **Context-Aware Alerts**: When SOS is triggered, the system automatically compiles a comprehensive alert package containing:
+
   * **Precise Location**: Current Latitude and Longitude.
   * **Physiological State**: The user's current Heart Rate (BPM) at the time of the alert.
 * **Emergency Contact Notification**: Trusted contacts receive instant notifications. Tapping the notification automatically copies the distress coordinates to the clipboard for quick sharing with emergency services or navigation.
 * **Live Tracking Mode**: Activating SOS enables a real-time location stream, allowing emergency contacts to track the user's movement on an interactive map.
 
+![Live Location](https://github.com/user-attachments/assets/3c2e59af-7655-45bf-8860-6eb84d98a7ec)
+
+---
+
 ### Connectivity & Social
+
+![Friends-List](https://github.com/user-attachments/assets/28b0de5e-13b4-47df-89f6-5de99a1179bb)
 
 * **Friend & Contact Management**: Users can search for and add friends via email. The system handles friend requests with a secure accept/reject workflow.
 * **Profile Synchronization**: User profiles, including profile pictures, are synchronized in real-time across devices using Firebase Storage and Realtime Database. Updating a profile picture instantly reflects on friends' devices.
 * **Status Indicators**: View the online/offline status and safety state of connected friends.
 
+![Notifications](https://github.com/user-attachments/assets/bee686ee-217f-43d3-aab5-078c868a9209)
+
+---
+
 ### Security & Privacy
 
 * **Local Data Encryption**: Sensitive user data stored on the device (authentication tokens, cached profile information) is protected using AES-256 encryption.
 * **Secure Authentication**: powered by Firebase Authentication, supporting email/password login with secure session management.
+
+---
 
 ## System Architecture
 
@@ -42,6 +65,11 @@ This project utilizes a modern technology stack including Flutter for the cross-
 * **Navigation**: GoRouter for deep linking and stack management.
 * **Maps**: Integrated OpenStreetMap implementation for rendering live location data without requiring proprietary API keys.
 
+### Hardware (Wearable Prototype)
+
+* **Controller**: ESP32 / ESP8266 Microcontroller with WiFi capabilities.
+* **Sensors**: Analog Pulse Sensor (reading PPG data).
+* **Communication**: Direct WiFi connection to Firebase Realtime Database for pushing processed BPM values.
 ### Hardware (Wearable Prototype)
 
 * **Controller**: ESP32 / ESP8266 Microcontroller with WiFi capabilities.
@@ -200,7 +228,6 @@ This project utilizes a modern technology stack including Flutter for the cross-
         </tr>
     </table>
 </div>
-
 
 ---
 *LifeStream - Protecting Lives through Technology.*
